@@ -18,6 +18,8 @@ public class PlayerMoveAbility : PlayerAbility
     
     private void Update()
     {
+        if (!_owner.PhotonView.IsMine) return;
+        
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         
