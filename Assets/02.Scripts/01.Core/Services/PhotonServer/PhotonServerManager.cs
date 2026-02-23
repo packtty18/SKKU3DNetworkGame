@@ -7,9 +7,24 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
 {
     private string _version = "0.0.1";
     private string _nickname = "Mongil";
+    [SerializeField] private PhotonPrefabPool _prefabPool;
     
     private void Start()
     {
+        if (_prefabPool == null)
+        {
+            _prefabPool = GetComponent<PhotonPrefabPool>();
+        }
+
+        if (_prefabPool != null)
+        {
+            PhotonNetwork.PrefabPool = _prefabPool;
+        }
+        else
+        {
+            Debug.LogWarning("PhotonPrefabPool is not assigned. Falling back to default Resources-based pool.");
+        }
+
         _nickname += $"_{UnityEngine.Random.Range(100, 999)}";
         
         //설정 파트
@@ -30,13 +45,11 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
         Debug.Log("네임서버 접속 완료!");
         // 네임 서버(AppId, GameVersion 등으로 구분되는 서버)
         Debug.Log(PhotonNetwork.CloudRegion);
-        // 현재 어느 지역의 서버에 연결됐나?
         // ping 테스트를 통해서 가장 빠른 리전으로 자동 연결된다. (kr: korea)
     }
 
     public override void OnConnectedToMaster()
     {
-        // 포톤 서버는 로비(=채널)이라는 개념이 있다.
         //TypedLobby lobby = new TypedLobby("3channel", LobbyType.Default);
         
         PhotonNetwork.JoinLobby(); // Default 로비 입장 시도
@@ -67,8 +80,7 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
             Debug.Log($"{player.Value.NickName} : {player.Value.ActorNumber}");
         }
         
-        // 리소스 폴더에서 "Player" 이름을 가진 프리팹을 생성(인스턴스화)하고, 서버에 등록도한다.
-        //   ㄴ 리소스 폴더는 나쁜것이다. 그러기 때문에 다른 방법을 찾아보거라..
+        // 리소스 폴더 대신 IPunPrefabPool 커스텀 풀로 등록된 프리팹을 대상으로 생성
         PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity);
     }
 
