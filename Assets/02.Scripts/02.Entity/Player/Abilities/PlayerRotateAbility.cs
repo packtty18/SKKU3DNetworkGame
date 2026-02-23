@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class PlayerRotateAbility : PlayerAbility
@@ -10,11 +11,17 @@ public class PlayerRotateAbility : PlayerAbility
 
     private void Start()
     {
+        if (!_owner.PhotonView.IsMine) return;
         Cursor.lockState = CursorLockMode.Locked;
+        
+        CinemachineCamera vcam = GameObject.Find("FollowCamera").GetComponent<CinemachineCamera>();
+        vcam.Follow = CameraRoot.transform;
     }
   
     private void Update()
     {
+        if (!_owner.PhotonView.IsMine) return;
+        
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 	   

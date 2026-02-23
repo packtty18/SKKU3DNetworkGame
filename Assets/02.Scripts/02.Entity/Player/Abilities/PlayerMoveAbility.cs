@@ -12,12 +12,15 @@ public class PlayerMoveAbility : PlayerAbility
 
     private void Start()
     {
+        if (!_owner.PhotonView.IsMine) return;
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
     }
     
     private void Update()
     {
+        if (!_owner.PhotonView.IsMine) return;
+        
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         

@@ -1,10 +1,17 @@
 using System;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Stat Stat;
+    public PhotonView PhotonView;
+    public EntityStat Stat;
+
+    private void Awake()
+    {
+        PhotonView = GetComponent<PhotonView>();
+    }
     
     private Dictionary<Type, PlayerAbility> _abilitiesCache = new();
     

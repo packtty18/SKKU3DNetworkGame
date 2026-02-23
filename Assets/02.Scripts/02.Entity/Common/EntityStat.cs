@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class Stat
+public class EntityStat
 {
     public float MoveSpeed;
     public float JumpPower;
