@@ -7626,6 +7626,7 @@ GameObject:
   - component: {fileID: 1085533450}
   - component: {fileID: 1085533449}
   - component: {fileID: 1085533451}
+  - component: {fileID: 1085533452}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -7725,6 +7726,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRotateAbility
   CameraRoot: {fileID: 1961019423}
   RotationSpeed: 100
+--- !u!114 &1085533452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085533446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4560c69bc28f60d4aafcd3ae8407ab17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackAbility
 --- !u!1001 &1103272216
 PrefabInstance:
   m_ObjectHideFlags: 0
