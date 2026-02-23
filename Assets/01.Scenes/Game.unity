@@ -7625,6 +7625,7 @@ GameObject:
   - component: {fileID: 1085533448}
   - component: {fileID: 1085533450}
   - component: {fileID: 1085533449}
+  - component: {fileID: 1085533451}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -7698,7 +7699,7 @@ Animator:
   m_GameObject: {fileID: 1085533446}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 0308cf4e83cf517488b60af58b290fe0, type: 3}
-  m_Controller: {fileID: 9100000, guid: 2be64f57d7d213648aa9b2e5e8e0a39b, type: 2}
+  m_Controller: {fileID: 9100000, guid: 5e982f422ea4cf946b25fb6d365d161d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -7710,6 +7711,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1085533451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085533446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c217649ac27fb0498f4650db55b6487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRotateAbility
+  CameraRoot: {fileID: 1961019423}
+  RotationSpeed: 100
 --- !u!1001 &1103272216
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14651,7 +14666,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1961019423}
   m_Layer: 0
-  m_Name: CinemachineRoot
+  m_Name: CameraRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
