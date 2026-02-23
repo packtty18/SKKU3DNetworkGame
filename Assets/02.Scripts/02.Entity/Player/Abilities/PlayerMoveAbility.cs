@@ -12,6 +12,7 @@ public class PlayerMoveAbility : PlayerAbility
 
     private void Start()
     {
+        if (!_owner.PhotonView.IsMine) return;
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
     }

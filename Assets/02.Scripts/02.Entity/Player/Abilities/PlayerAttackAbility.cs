@@ -11,6 +11,7 @@ public class PlayerAttackAbility : PlayerAbility
 
     private void Start()
     {
+        if (!_owner.PhotonView.IsMine) return;
         _animator = GetComponent<Animator>();
     }
     
