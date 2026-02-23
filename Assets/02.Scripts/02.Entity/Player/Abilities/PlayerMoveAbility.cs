@@ -1,15 +1,11 @@
 using UnityEngine;
 
-public class PlayerMoveAbility : MonoBehaviour
+public class PlayerMoveAbility : PlayerAbility
 {
     private float _gravity = -9f;
     
     private CharacterController _characterController;
     private Animator _animator;
-
-    //스텟
-    public float MoveSpeed = 7f;
-    public float JumpPower = 2.5f;
     
     //누적 y
     private float _yVelocity = 0f;
@@ -38,7 +34,7 @@ public class PlayerMoveAbility : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && _characterController.isGrounded)
         {
             Debug.Log("점프");
-            _yVelocity = JumpPower;
+            _yVelocity = _owner.Stat.JumpPower;
         }
         
         //중력 적용(프레임마다 중력값만큼 누적)
@@ -48,6 +44,6 @@ public class PlayerMoveAbility : MonoBehaviour
         
         //최종 적용
         
-        _characterController.Move(dir * MoveSpeed * Time.deltaTime);
+        _characterController.Move(dir * _owner.Stat.MoveSpeed * Time.deltaTime);
     }
 }
