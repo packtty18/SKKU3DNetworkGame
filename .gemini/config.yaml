@@ -1,0 +1,174 @@
+# Gemini Code Assist Configuration for Unity Project
+
+# Code Analysis Settings
+analysis:
+  include:
+    # PR 리뷰/분석 대상: Assets/02.Scripts 하위의 모든 C# 스크립트
+    - "Assets/02.Scripts/**/*.cs"
+  exclude:
+    # Unity 자동 생성/외부 의존/빌드 산출물 및 분석 불필요 경로 제외
+    - "Assets/Plugins/**"
+    - "Assets/Test/**"
+    - "Assets/Tests/**"
+    - "Library/**"
+    - "Temp/**"
+    - "Obj/**"
+    - "Build/**"
+    - "Builds/**"
+    - "Logs/**"
+    - "MemoryCaptures/**"
+    - "UserSettings/**"
+    - "*.meta"
+
+# Coding Standards
+standards:
+  csharp:
+    # Bracing/Indent 규칙은 실제 포매팅(.editorconfig/IDE)으로 강제하고,
+    # 리뷰에서는 위반 여부를 지적하도록 한다.
+    formatting:
+      indentation: "spaces"
+      indent_size: 4
+      bracing_style: "Allman"
+
+    naming_conventions:
+      namespace: "PascalCase"
+      class: "PascalCase"
+      struct: "PascalCase"
+      record: "PascalCase"
+      interface: "IPascalCase"
+      enum: "PascalCase"
+      method: "PascalCase"
+      property: "PascalCase"
+      event: "PascalCase"
+      parameter: "camelCase"
+      local_variable: "camelCase"
+      private_field: "_camelCase"
+      static_field: "s_camelCase"
+      thread_static_field: "t_camelCase"
+      constant: "PascalCase"
+
+    language_rules:
+      # 타입 표기
+      prefer_language_keywords: true     # int, string 등 키워드 선호
+      prefer_int_over_unsigned: true
+
+      # var
+      var_usage: "only_when_obvious"     # 타입이 명확히 유추될 때만
+
+      # 문자열
+      strings:
+        prefer_interpolation: true       # 짧은 연결은 보간
+        prefer_stringbuilder_in_loops: true
+        allow_raw_string_literals: true
+
+      # 컬렉션 초기화(C# 12 기준)
+      collections:
+        prefer_collection_expressions: true
+
+      # 예외 처리
+      exceptions:
+        forbid_catch_all_exception: true # catch(Exception) 금지
+        require_specific_exception_types: true
+        forbid_swallowing_exceptions: true
+
+    unity_rules:
+      lifecycle:
+        # Awake/Start/OnEnable/OnDisable 등 Unity 라이프사이클의 책임을 명확히
+        prefer_awake_for_cache: true
+        avoid_heavy_startup_in_start: true
+        avoid_heavy_operations_in_update: true
+
+      get_component:
+        cache_references: true
+        forbid_repeated_calls_in_update: true
+
+      serialization:
+        # 기존 config의 "uGUI만 SerializeField"는 유지보수/확장성 측면에서 과도하게 제약이 큼.
+        # 프로젝트 스타일 가이드에 맞춰 "Inspector 노출이 의도될 때만" 허용하도록 변경.
+        serializefield_policy: "only_when_inspector_binding_is_intended"
+        forbid_unused_serializefield: true
+        forbid_runtime_only_data_serialization: true
+
+      architecture:
+        monobehaviour_role: "coordinator_only" # MonoBehaviour는 조정자 역할 선호
+        prefer_pure_csharp_for_domain_logic: true
+        prefer_event_driven_over_polling: true
+        allow_singleton: "discouraged"         # 필요 시 허용하되 남용 경고
+        prefer_object_pooling_for_frequent_spawns: true
+
+    design_principles:
+      # 리뷰 핵심: SOLID, 디미터의 법칙 위반을 중점적으로 지적
+      solid: true
+      law_of_demeter: true
+      flags:
+        train_wreck_call_chain_threshold: 3    # 점(.) 연쇄 3회 이상은 LoD 경고 후보
+        god_class_line_threshold: 500          # 500줄 이상은 분리 검토 경고
+        long_method_line_threshold: 30         # 30줄 이상 메서드 분리 권고
+        update_complexity_threshold: "medium"  # Update 내 과도한 분기/연산 경고
+
+# AI Assistant Context
+context:
+  frameworks:
+    - "Unity Engine"
+    - "Unity UI (uGUI)"
+    - "Unity Input System"
+    - "TextMeshPro"
+  common_patterns:
+    - "MonoBehaviour components"
+    - "ScriptableObject data containers"
+    - "Object pooling for performance"
+    - "Event-driven architecture"
+    - "State machine architecture"
+  best_practices:
+    - "Avoid heavy operations in Update()"
+    - "Prefer event-driven design to polling"
+    - "Use object pooling for frequently instantiated objects"
+    - "Cache component references in Awake()"
+    - "Use layers and tags intentionally and consistently"
+    - "Apply null checks defensively for Unity object references"
+
+# Documentation
+documentation:
+  # 프로젝트 스타일 가이드: XML 주석은 작성하지 않음
+  style: "none"
+  required_for: []
+
+# Performance Considerations
+performance:
+  optimization_level: "balanced"
+  focus_areas:
+    - "garbage collection reduction"
+    - "memory management"
+    - "mobile performance"
+    - "allocation-free patterns in Update()"
+
+# Git Integration
+git:
+  ignore_generated: true
+  auto_commit_message_style: "conventional"
+
+# Custom Instructions
+custom_instructions: |
+  코드 리뷰/요약/코멘트는 반드시 한국어로 작성한다.
+
+  리뷰 우선순위:
+  1) SOLID 위반 여부
+  2) 디미터의 법칙(LoD) 위반 여부
+  3) Unity 성능(특히 모바일) 영향
+  4) 가독성/유지보수성(네이밍, 구조, 중복 제거)
+
+  Unity 코드 제안 시 준수 사항:
+  - 접근 제한자(public/private/protected/internal)를 모든 메서드에 명시한다.
+  - 중괄호는 항상 사용한다(단일 문장이라도 생략 금지).
+  - Update()에서 무거운 연산/반복 GetComponent 호출/할당을 피한다.
+  - Inspector 노출은 의도적으로 최소화하고, 필요한 경우에만 [SerializeField]를 사용한다.
+  - ScriptableObject는 데이터(설정/밸런스/테이블) 용도로 적극 고려한다.
+  - 빈번한 생성/파괴는 오브젝트 풀링을 우선 고려한다.
+  - null 체크 및 오류 처리를 구체적으로 작성한다(포괄 catch 금지).
+  - 주석은 필요한 경우에만 // 로 작성하며, 한국어로 작성한다.
+
+  보이스카웃 법칙(Scout Rule):
+  - 기존 클래스/파일을 수정하는 PR에서만 적용한다.
+  - 신규로 생성한 클래스에는 강제하지 않는다.
+  - 기존 파일 수정 시, 주변의 기술 부채(불필요한 using, 죽은 코드, 불필요한 SerializedField,
+    복잡한 조건문, LoD 위반 등)를 가능한 범위에서 함께 개선한다.
