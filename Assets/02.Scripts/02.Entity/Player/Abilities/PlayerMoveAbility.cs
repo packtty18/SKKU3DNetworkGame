@@ -1,52 +1,71 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMoveAbility : PlayerAbility
 {
-    private float _gravity = -9f;
+    private static readonly int MoveHash = Animator.StringToHash("Move");
+    private const float GRAVITY = -9f;
     
-    private CharacterController _characterController;
     private Animator _animator;
-    
-    //누적 y
+    private CharacterController _characterController;
     private float _yVelocity = 0f;
+    
 
-    private void Start()
+    private ConsumableStat _stamina => _owner?.Stamina;
+    
+    protected override void Awake()
     {
-        if (!_owner.PhotonView.IsMine) return;
-        _characterController = GetComponent<CharacterController>();
+        base.Awake();
         _animator = GetComponent<Animator>();
+        _characterController = GetComponent<CharacterController>();
     }
     
     private void Update()
     {
         if (!_owner.PhotonView.IsMine) return;
         
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
+        float deltaTime = Time.deltaTime;   
         
-        //인풋에 따른 방향 정의
-        Vector3 dir = new Vector3(h, 0, v);
-        dir = dir.normalized;
+        //이동 방향 정의
+        Vector3 dir = new Vector3(_owner.Inputs.MoveHorizontalInput, 0f, _owner.Inputs.MoveVerticalInput).normalized;
+        SetMoveMagnitude(dir.magnitude);
+
+        dir = Camera.main.transform.TransformDirection(dir);
         
-        //애니메이션 적용
-        _animator.SetFloat("Move", dir.magnitude);
-        
-        dir = Camera.main.transform.TransformDirection(dir); //카메라가 보는 방향 기준
-        
-        //점프 기능
-        if (Input.GetKeyDown(KeyCode.Space) && _characterController.isGrounded)
+        //점프
+        if (_owner.Inputs.JumpPressed && 
+            _characterController.isGrounded && 
+            _owner.TryUseStamina(_owner.Stat.JumpCost))
         {
-            Debug.Log("점프");
             _yVelocity = _owner.Stat.JumpPower;
         }
-        
-        //중력 적용(프레임마다 중력값만큼 누적)
-        _yVelocity += _gravity * Time.deltaTime;
+
+        _yVelocity += GRAVITY * deltaTime;
         dir.y = _yVelocity;
         
-        
-        //최종 적용
-        
-        _characterController.Move(dir * _owner.Stat.MoveSpeed * Time.deltaTime);
+        //대쉬
+        float resultSpeed = _owner.Stat.MoveSpeed;
+        if (_owner.Inputs.DashPressed && _owner.TryUseStamina(_owner.Stat.DashCost * deltaTime))
+        {
+            resultSpeed =  _owner.Stat.DashSpeed;
+        }
+
+        if (_owner.Exhausted)
+        {
+            resultSpeed = _owner.Stat.ExhaustSpeed;
+        }
+
+        _characterController.Move(dir * resultSpeed * Time.deltaTime);
     }
+    
+    
+    private void SetMoveMagnitude(float moveMagnitude)
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        _animator.SetFloat(MoveHash, moveMagnitude);
+    }
+
 }
