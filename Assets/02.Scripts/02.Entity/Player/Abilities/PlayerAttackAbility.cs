@@ -43,8 +43,8 @@ public class PlayerAttackAbility : PlayerAbility
                     break;
                 }
             }
-            
-            _animator.SetTrigger($"Attack{animationNumber}");
+            _animator.SetInteger("AttackCount", animationNumber);
+            _animator.SetTrigger($"OnAttack");
         }
     }
 }
