@@ -4,7 +4,6 @@ using UnityEngine;
 public class PlayerRotateAbility : PlayerAbility
 {
     public Transform CameraRoot;
-    public float RotationSpeed = 100;
 
     private float _mx;
     private float _my;
@@ -25,8 +24,8 @@ public class PlayerRotateAbility : PlayerAbility
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 	   
-        _mx += mouseX * RotationSpeed * Time.deltaTime;
-        _my += mouseY * RotationSpeed * Time.deltaTime;
+        _mx += mouseX * _owner.Stat.RotationSpeed * Time.deltaTime;
+        _my += mouseY * _owner.Stat.RotationSpeed * Time.deltaTime;
 	    
         _my = Mathf.Clamp(_my, -90f, 90f);
 

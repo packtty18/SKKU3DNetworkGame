@@ -1,14 +1,15 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMoveAbility : PlayerAbility
 {
-    private float _gravity = -9f;
+    private const float GRAVITY = -9f;
     
     private CharacterController _characterController;
     private Animator _animator;
-    
-    //누적 y
     private float _yVelocity = 0f;
+    
+
+    private ConsumableStat _stamina => _owner?.Stamina;
 
     private void Start()
     {
@@ -16,37 +17,60 @@ public class PlayerMoveAbility : PlayerAbility
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
     }
-    
+
     private void Update()
     {
         if (!_owner.PhotonView.IsMine) return;
-        
+
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-        
-        //인풋에 따른 방향 정의
-        Vector3 dir = new Vector3(h, 0, v);
-        dir = dir.normalized;
-        
-        //애니메이션 적용
+
+        Vector3 dir = new Vector3(h, 0f, v).normalized;
         _animator.SetFloat("Move", dir.magnitude);
-        
-        dir = Camera.main.transform.TransformDirection(dir); //카메라가 보는 방향 기준
-        
-        //점프 기능
+
+        dir = Camera.main.transform.TransformDirection(dir);
+
         if (Input.GetKeyDown(KeyCode.Space) && _characterController.isGrounded)
         {
-            Debug.Log("점프");
             _yVelocity = _owner.Stat.JumpPower;
         }
-        
-        //중력 적용(프레임마다 중력값만큼 누적)
-        _yVelocity += _gravity * Time.deltaTime;
+
+        _yVelocity += GRAVITY * Time.deltaTime;
         dir.y = _yVelocity;
-        
-        
-        //최종 적용
-        
-        _characterController.Move(dir * _owner.Stat.MoveSpeed * Time.deltaTime);
+
+        float speed = _owner.Stat.MoveSpeed;
+        float deltaTime = Time.deltaTime;
+
+        bool wantsDash = Input.GetKey(KeyCode.LeftShift);
+        bool dashBlockedByExhaust = _owner.Exhausted;
+
+        if (wantsDash && !dashBlockedByExhaust && _stamina != null)
+        {
+            if (_stamina.TryConsume(_owner.Stat.DashCost * deltaTime))
+            {
+                speed = _owner.Stat.DashSpeed;
+
+                if (_stamina.IsEmpty)
+                {
+                    _owner.Exhausted = true;
+                }
+            }
+            else
+            {
+                _stamina.SetCurrent(0f);
+                _owner.Exhausted = true;
+            }
+        }
+        else
+        {
+            _stamina?.TryRegenerate(deltaTime);
+        }
+
+        if ( _owner.Exhausted && _stamina != null && _stamina.Ratio >= _owner.Stat.ExhaustRecoveryRatio)
+        {
+            _owner.Exhausted = false;
+        }
+
+        _characterController.Move(dir * speed * Time.deltaTime);
     }
 }
