@@ -17,6 +17,7 @@ public class PlayerInputs
     {
         ClearInputState();
     }
+    
     public void ClearInputState()
     {
         MoveHorizontalInput = 0;

@@ -4,7 +4,7 @@ using Photon.Pun;
 using UnityEngine;
 
 [RequireComponent(typeof(PhotonView))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDamageable
 {
     private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
 
@@ -84,4 +84,11 @@ public class PlayerController : MonoBehaviour
     {
         GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
     }
+
+    public void TakeDamage(float damage)
+    {
+        GetAbility<PlayerHealthAbility>().TryTakeDamage(damage);
+    }
+    
+    
 }

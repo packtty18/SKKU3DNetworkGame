@@ -23,6 +23,6 @@ public class EntityStat
     
     public float AttackSpeed = 0.6f;
     public float AttackCost = 2.5f;
-    
+    public float AttackDamage = 2;
     public float RotationSpeed =100;
 }    
