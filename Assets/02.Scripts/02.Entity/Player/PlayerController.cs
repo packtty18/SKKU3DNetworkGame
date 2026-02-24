@@ -1,99 +1,63 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 
+[RequireComponent(typeof(PhotonView))]
 public class PlayerController : MonoBehaviour
 {
-    private const float STAMINA_REGEN_DELAY = 3f;
+    private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
 
-    private Dictionary<Type, PlayerAbility> _abilitiesCache = new();
-
-    public PhotonView PhotonView;
+    public PhotonView PhotonView { get; private set; }
     public EntityStat Stat;
+    
+    private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
+    private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
+    public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
+    public ConsumableStat Health => _healthAbility?.Health;
+    public ConsumableStat Stamina => _staminaAbility?.Stamina;
 
-    public PlayerInputs Inputs;
-
-    public ConsumableStat Health;
-    public ConsumableStat Stamina;
-
-    public bool Exhausted { get; set; }
-
-    private float _staminaRegenCooldown = 0f;
-
+    public bool Exhausted
+    {
+        get => _staminaAbility != null && _staminaAbility.Exhausted;
+        set
+        {
+            if (_staminaAbility != null)
+            {
+                _staminaAbility.Exhausted = value;
+            }
+        }
+    }
+    
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
     }
 
-    private void Start()
-    {
-        Inputs = new PlayerInputs();
-        Health = new ConsumableStat(Stat.MaxHealth, Stat.MaxHealth, Stat.RegenerateHealth);
-        Stamina = new ConsumableStat(Stat.MaxStamina, Stat.MaxStamina, Stat.RegenerateStamina);
-        Exhausted = false;
-    }
-
-    private void Update()
-    {
-        if (PhotonView == null || !PhotonView.IsMine || Inputs == null)
-        {
-            return;
-        }
-
-        Inputs.MoveHorizontalInput = Input.GetAxisRaw("Horizontal");
-        Inputs.MoveVerticalInput = Input.GetAxisRaw("Vertical");
-        Inputs.DashPressed = Input.GetKey(KeyCode.LeftShift);
-        Inputs.JumpPressed = Input.GetKeyDown(KeyCode.Space);
-
-        Inputs.LookInputX = Input.GetAxis("Mouse X");
-        Inputs.LookInputY = Input.GetAxis("Mouse Y");
-
-        Inputs.AttackPressed = Input.GetMouseButton(0);
-
-        Inputs.Skill1Pressed = Input.GetKeyDown(KeyCode.Alpha1);
-        Inputs.Skill2Pressed = Input.GetKeyDown(KeyCode.Alpha2);
-        Inputs.Skill3Pressed = Input.GetKeyDown(KeyCode.Alpha3);
-
-        if (_staminaRegenCooldown > 0f)
-        {
-            _staminaRegenCooldown -= Time.deltaTime;
-            return;
-        }
-
-        Stamina?.TryRegenerate(Time.deltaTime);
-
-        if (Exhausted && Stamina != null && Stamina.Ratio >= Stat.ExhaustRecoveryRatio)
-        {
-            Exhausted = false;
-        }
-    }
-
     public bool TryUseStamina(float amount)
     {
-        if (Stamina == null)
+        return _staminaAbility != null && _staminaAbility.TryUseStamina(amount);
+    }
+
+    public bool TryGetNetworkResourceState(out float health, out float stamina)
+    {
+        health = 0f;
+        stamina = 0f;
+
+        if (_healthAbility == null || _staminaAbility == null)
         {
             return false;
         }
 
-        if (Exhausted)
-        {
-            return false;
-        }
+        health = _healthAbility.Health != null ? _healthAbility.Health.Current : 0f;
+        stamina = _staminaAbility.Stamina != null ? _staminaAbility.Stamina.Current : 0f;
+        return true;
+    }
 
-        if (Stamina.TryConsume(amount))
-        {
-            _staminaRegenCooldown = STAMINA_REGEN_DELAY;
-
-            if (Stamina.IsEmpty)
-            {
-                Exhausted = true;
-            }
-
-            return true;
-        }
-
-        return false;
+    public void ApplyNetworkResourceState(float health, float stamina)
+    {
+        _healthAbility?.ApplyNetworkState(health);
+        _staminaAbility?.ApplyNetworkState(stamina);
     }
 
     public T GetAbility<T>() where T : PlayerAbility
@@ -115,18 +79,9 @@ public class PlayerController : MonoBehaviour
 
         throw new Exception($"어빌리티 {type.Name}를 {gameObject.name}에서 찾을 수 없습니다.");
     }
-
+    
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(Health.Current);
-            stream.SendNext(Stamina.Current);
-        }
-        else if (stream.IsReading)
-        {
-            Health.SetCurrent((float)stream.ReceiveNext());
-            Stamina.SetCurrent((float)stream.ReceiveNext());
-        }
+        GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
     }
 }

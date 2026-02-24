@@ -1987,10 +1987,14 @@ GameObject:
   - component: {fileID: 1139093625250478096}
   - component: {fileID: 188095864821003265}
   - component: {fileID: 4587823764092608890}
+  - component: {fileID: 5272376755440506502}
+  - component: {fileID: 271232246658549848}
+  - component: {fileID: 430075860302263360}
   - component: {fileID: 1596713370649576609}
   - component: {fileID: 3974778456602760796}
   - component: {fileID: 4397698730793767679}
   - component: {fileID: 52850486815392640}
+  - component: {fileID: 3263876747762608689}
   m_Layer: 0
   m_Name: MyPlayer
   m_TagString: Untagged
@@ -2082,7 +2086,8 @@ MonoBehaviour:
   Synchronization: 2
   OwnershipTransfer: 0
   observableSearch: 2
-  ObservedComponents: []
+  ObservedComponents:
+  - {fileID: 3263876747762608689}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -2098,7 +2103,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bdbd33e670c79c40981cc8b17067c74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  PhotonView: {fileID: 188095864821003265}
   Stat:
     MaxHealth: 10
     RegenerateHealth: 0
@@ -2114,6 +2118,42 @@ MonoBehaviour:
     AttackSpeed: 0.6
     AttackCost: 2.5
     RotationSpeed: 100
+--- !u!114 &5272376755440506502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4897730005635360349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ae16dceb8b1f54ea73cfc06fa93242, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealthAbility
+--- !u!114 &271232246658549848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4897730005635360349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb8e78924784d494c84c3702034c9263, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStaminaAbility
+--- !u!114 &430075860302263360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4897730005635360349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68533cc6af1e398408ec50b3a881c6dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputAbility
 --- !u!114 &1596713370649576609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2164,12 +2204,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240b06acd6f13054b8ddb82d9562e8b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTauntAbility
-  _taunt1Trigger: Taunt1
-  _taunt2Trigger: Taunt2
-  _taunt3Trigger: Taunt3
-  _cancelTrigger: TauntCancel
-  _layerIndex: 0
-  _crossFadeDuration: 0.05
+--- !u!114 &3263876747762608689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4897730005635360349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b79ddcea68926e8418cd88fce72c3413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNetworkSyncAbility
 --- !u!1 &4909840846476316952
 GameObject:
   m_ObjectHideFlags: 0
