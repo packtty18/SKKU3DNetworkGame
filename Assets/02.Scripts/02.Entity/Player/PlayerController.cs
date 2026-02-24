@@ -1,24 +1,26 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 
-//플레이어 대표로써 외부와의 소통 또는 어빌리티 관리
 public class PlayerController : MonoBehaviour
 {
+    private const float STAMINA_REGEN_DELAY = 3f;
+
     private Dictionary<Type, PlayerAbility> _abilitiesCache = new();
-    
+
     public PhotonView PhotonView;
     public EntityStat Stat;
 
-    //도메인 스텟
+    public PlayerInputs Inputs;
+
     public ConsumableStat Health;
     public ConsumableStat Stamina;
-    
-    //플래그
-    public bool Exhausted { get; set; }  //스테미너를 모두 소모한경우 일시적으로 스테미너 사용 기능 금지
-    
-    
+
+    public bool Exhausted { get; set; }
+
+    private float _staminaRegenCooldown = 0f;
+
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
@@ -26,9 +28,72 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        Health = new ConsumableStat(Stat.MaxHealth,  Stat.MaxHealth, Stat.RegenerateHealth);
-        Stamina = new ConsumableStat(Stat.MaxStamina,  Stat.MaxStamina, Stat.RegenerateStamina);
+        Inputs = new PlayerInputs();
+        Health = new ConsumableStat(Stat.MaxHealth, Stat.MaxHealth, Stat.RegenerateHealth);
+        Stamina = new ConsumableStat(Stat.MaxStamina, Stat.MaxStamina, Stat.RegenerateStamina);
         Exhausted = false;
+    }
+
+    private void Update()
+    {
+        if (PhotonView == null || !PhotonView.IsMine || Inputs == null)
+        {
+            return;
+        }
+
+        Inputs.MoveHorizontalInput = Input.GetAxisRaw("Horizontal");
+        Inputs.MoveVerticalInput = Input.GetAxisRaw("Vertical");
+        Inputs.DashPressed = Input.GetKey(KeyCode.LeftShift);
+        Inputs.JumpPressed = Input.GetKeyDown(KeyCode.Space);
+
+        Inputs.LookInputX = Input.GetAxis("Mouse X");
+        Inputs.LookInputY = Input.GetAxis("Mouse Y");
+
+        Inputs.AttackPressed = Input.GetMouseButton(0);
+
+        Inputs.Skill1Pressed = Input.GetKeyDown(KeyCode.Alpha1);
+        Inputs.Skill2Pressed = Input.GetKeyDown(KeyCode.Alpha2);
+        Inputs.Skill3Pressed = Input.GetKeyDown(KeyCode.Alpha3);
+
+        if (_staminaRegenCooldown > 0f)
+        {
+            _staminaRegenCooldown -= Time.deltaTime;
+            return;
+        }
+
+        Stamina?.TryRegenerate(Time.deltaTime);
+
+        if (Exhausted && Stamina != null && Stamina.Ratio >= Stat.ExhaustRecoveryRatio)
+        {
+            Exhausted = false;
+        }
+    }
+
+    public bool TryUseStamina(float amount)
+    {
+        if (Stamina == null)
+        {
+            return false;
+        }
+
+        if (Exhausted)
+        {
+            return false;
+        }
+
+        if (Stamina.TryConsume(amount))
+        {
+            _staminaRegenCooldown = STAMINA_REGEN_DELAY;
+
+            if (Stamina.IsEmpty)
+            {
+                Exhausted = true;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public T GetAbility<T>() where T : PlayerAbility
@@ -40,35 +105,28 @@ public class PlayerController : MonoBehaviour
             return ability as T;
         }
 
-        // 게으른 초기화/로딩 -> 처음에 곧바로 초기화/로딩을 하는게 아니라
-        //                    필요할때만 하는.. 뒤로 미루는 기법
         ability = GetComponent<T>();
 
         if (ability != null)
         {
             _abilitiesCache[ability.GetType()] = ability;
-
             return ability as T;
         }
-        
-        throw new Exception($"어빌리티 {type.Name}을 {gameObject.name}에서 찾을 수 없습니다.");
+
+        throw new Exception($"어빌리티 {type.Name}를 {gameObject.name}에서 찾을 수 없습니다.");
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
-            //송신
             stream.SendNext(Health.Current);
             stream.SendNext(Stamina.Current);
         }
         else if (stream.IsReading)
         {
-            //수신(송신한 순서대로 object로 전송(박싱언박싱 발생 -> 자원소모))
-            //JSON을 사용했을때 비용과 박싱언박싱 비용을 잘 판단해서 적절한 것 사용
             Health.SetCurrent((float)stream.ReceiveNext());
             Stamina.SetCurrent((float)stream.ReceiveNext());
         }
-        
     }
 }

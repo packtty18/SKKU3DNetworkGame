@@ -11,7 +11,7 @@ public sealed class ConsumableStat
     public float Regenerate { get; private set; }   //초당 회복량
 
     public bool IsFull => Current >= Max;   
-    public bool IsEmpty => Current <= 0f;
+    public bool IsEmpty => Current <= 0.01f;
     public float Ratio => Current / Max;
 
     public ConsumableStat(float max, float current = 0, float regenerate = 0)

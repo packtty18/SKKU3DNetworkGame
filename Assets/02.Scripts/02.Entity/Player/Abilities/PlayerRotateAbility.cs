@@ -20,9 +20,9 @@ public class PlayerRotateAbility : PlayerAbility
     private void Update()
     {
         if (!_owner.PhotonView.IsMine) return;
-        
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
+
+        float mouseX = _owner.Inputs.LookInputX;
+        float mouseY = _owner.Inputs.LookInputY;
 	   
         _mx += mouseX * _owner.Stat.RotationSpeed * Time.deltaTime;
         _my += mouseY * _owner.Stat.RotationSpeed * Time.deltaTime;

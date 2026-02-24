@@ -19,10 +19,12 @@ public class PlayerAttackAbility : PlayerAbility
     {
         // 내꺼가 아니면 건들지 않는다!
         if (!_owner.PhotonView.IsMine) return;
-
+        
         _attackTimer += Time.deltaTime;
 
-        if (Input.GetMouseButton(0) && _attackTimer >= _owner.Stat.AttackSpeed)
+        if (_owner.Inputs.AttackPressed && 
+            _attackTimer >= _owner.Stat.AttackSpeed && 
+            _owner.TryUseStamina(_owner.Stat.AttackCost))
         {
             _attackTimer = 0f;
 
