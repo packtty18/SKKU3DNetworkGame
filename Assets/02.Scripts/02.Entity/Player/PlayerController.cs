@@ -84,10 +84,11 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
     }
-
+    
+    [PunRPC]
     public void TakeDamage(float damage)
     {
-        GetAbility<PlayerHealthAbility>().TryTakeDamage(damage);
+        _healthAbility.TryTakeDamage(damage);
     }
     
     

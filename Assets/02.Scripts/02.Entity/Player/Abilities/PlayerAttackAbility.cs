@@ -1,29 +1,32 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class PlayerAttackAbility : PlayerAbility
 {
-    private Animator _animator;
+    private static readonly int AttackCountHash = Animator.StringToHash("AttackCount");
+    private static readonly int OnAttackHash = Animator.StringToHash("OnAttack");
 
     [SerializeField] private EAnimationSequenceType _animationSequenceType;
 
     private int _prevAnimationNumber = 0;
     private float _attackTimer = 0f;
+    
+    private Animator _animator;
 
-    private void Start()
+    protected override void Awake()
     {
-        if (!_owner.PhotonView.IsMine) return;
+        base.Awake();
         _animator = GetComponent<Animator>();
     }
-    
+
     private void Update()
     {
-        // 내꺼가 아니면 건들지 않는다!
         if (!_owner.PhotonView.IsMine) return;
-        
+
         _attackTimer += Time.deltaTime;
 
-        if (_owner.Inputs.AttackPressed && 
-            _attackTimer >= _owner.Stat.AttackSpeed && 
+        if (_owner.Inputs.AttackPressed &&
+            _attackTimer >= _owner.Stat.AttackSpeed &&
             _owner.TryUseStamina(_owner.Stat.AttackCost))
         {
             _attackTimer = 0f;
@@ -36,17 +39,57 @@ public class PlayerAttackAbility : PlayerAbility
                     animationNumber = 1 + (_prevAnimationNumber++) % 3;
                     break;
                 }
-                
                 case EAnimationSequenceType.Random:
                 {
                     animationNumber = Random.Range(1, 4);
                     break;
                 }
             }
-            _animator.SetInteger("AttackCount", animationNumber);
-            _animator.SetTrigger($"OnAttack");
+
+            PlayAttackNetworked(animationNumber);
         }
     }
+
+    private void SetAttackCount(int attackCount)
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        _animator.SetInteger(AttackCountHash, attackCount);
+    }
+
+    private void TriggerAttack()
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        _animator.SetTrigger(OnAttackHash);
+    }
+
+    private void PlayAttackNetworked(int attackCount)
+    {
+        SetAttackCount(attackCount);
+        TriggerAttack();
+
+        if (_owner == null || _owner.PhotonView == null || !_owner.PhotonView.IsMine)
+        {
+            return;
+        }
+
+        _owner.PhotonView.RPC(nameof(RpcPlayAttack), RpcTarget.Others, attackCount);
+    }
+    
+    [PunRPC]
+    private void RpcPlayAttack(int attackCount)
+    {
+        SetAttackCount(attackCount);
+        TriggerAttack();
+    }
+
 }
 
 public enum EAnimationSequenceType

@@ -6,6 +6,25 @@ public class PlayerNamingAbility : PlayerAbility
     [SerializeField] private TextMeshProUGUI _nameText;
     private void Start()
     {
+        //내껀 안보임=> HUD로 보여줄것, 상대껏만 보임
+        /*if (_owner.PhotonView.IsMine)
+        {
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            gameObject.SetActive(true);
+            _nameText.text = _owner.PhotonView.Owner.NickName;
+            if (_owner.PhotonView.IsMine)
+            {
+                _nameText.color = Color.green;
+            }
+            else
+            {
+                _nameText.color = Color.red;
+            }
+        }*/
+        
         _nameText.text = _owner.PhotonView.Owner.NickName;
         if (_owner.PhotonView.IsMine)
         {
@@ -15,14 +34,5 @@ public class PlayerNamingAbility : PlayerAbility
         {
             _nameText.color = Color.red;
         }
-    }
-
-    private void FixedUpdate()
-    {
-        Transform _billboardTarget = Camera.main.transform;
-        Vector3 targetPosition = new Vector3(_billboardTarget.position.x, 
-            transform.position.y, 
-            _billboardTarget.position.z);
-        transform.LookAt(targetPosition);
     }
 }

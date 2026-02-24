@@ -2,22 +2,23 @@
 
 public class PlayerMoveAbility : PlayerAbility
 {
+    private static readonly int MoveHash = Animator.StringToHash("Move");
     private const float GRAVITY = -9f;
     
-    private CharacterController _characterController;
     private Animator _animator;
+    private CharacterController _characterController;
     private float _yVelocity = 0f;
     
 
     private ConsumableStat _stamina => _owner?.Stamina;
-
-    private void Start()
+    
+    protected override void Awake()
     {
-        if (!_owner.PhotonView.IsMine) return;
-        _characterController = GetComponent<CharacterController>();
+        base.Awake();
         _animator = GetComponent<Animator>();
+        _characterController = GetComponent<CharacterController>();
     }
-
+    
     private void Update()
     {
         if (!_owner.PhotonView.IsMine) return;
@@ -26,7 +27,7 @@ public class PlayerMoveAbility : PlayerAbility
         
         //이동 방향 정의
         Vector3 dir = new Vector3(_owner.Inputs.MoveHorizontalInput, 0f, _owner.Inputs.MoveVerticalInput).normalized;
-        _animator.SetFloat("Move", dir.magnitude);
+        SetMoveMagnitude(dir.magnitude);
 
         dir = Camera.main.transform.TransformDirection(dir);
         
@@ -55,4 +56,16 @@ public class PlayerMoveAbility : PlayerAbility
 
         _characterController.Move(dir * resultSpeed * Time.deltaTime);
     }
+    
+    
+    private void SetMoveMagnitude(float moveMagnitude)
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        _animator.SetFloat(MoveHash, moveMagnitude);
+    }
+
 }

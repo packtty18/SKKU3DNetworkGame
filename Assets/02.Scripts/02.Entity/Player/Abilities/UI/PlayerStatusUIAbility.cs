@@ -9,7 +9,7 @@ public class PlayerStatusUIAbility : PlayerAbility
     [SerializeField] private Color _normalStamniaColor = Color.orange;
     [SerializeField] private Color _exhaustedStaminaColor = Color.red;
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         _healthGuage.fillAmount = _owner.Health.Ratio;
         _staminaGuage.fillAmount = _owner.Stamina.Ratio;
