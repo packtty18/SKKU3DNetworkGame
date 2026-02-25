@@ -44,6 +44,9 @@ MonoBehaviour:
   - RpcCancelTaunt
   - RpcPlayAttack
   - RpcPlayTaunt
+  - RpcRequestSpawn
+  - RpcRequestPlayerSpawn
+  - RequestSpawn
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
