@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -8,8 +9,7 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
     private string _version = "0.0.1";
     private string _nickname = "Player";
     [SerializeField] private PhotonPrefabPool _prefabPool;
-    [SerializeField] private List<Transform> _spawnPoints;
-    
+
     private void Start()
     {
         if (_prefabPool == null)
@@ -80,75 +80,18 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
         {
             Debug.Log($"{player.Value.NickName} : {player.Value.ActorNumber}");
         }
-        
-        int myActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-       
-        if (PhotonNetwork.IsMasterClient)
+
+        if (SpawnManager.Instance != null)
         {
-            //마스터라면 직접 생성
-            SpawnAndGiveOwnership(myActorNumber);
+            SpawnManager.Instance.PlayerRandomPointSpawn();
         }
         else
         {
-            //아니라면 요청
-            photonView.RPC(nameof(RequestSpawn), RpcTarget.MasterClient, myActorNumber);
+            Debug.Log("스폰매니저가 존재하지 않음");
         }
     }
+
     
-    [PunRPC]
-    private void RequestSpawn(int requesterActorNumber, PhotonMessageInfo info)
-    {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            return;
-        }
-
-        // 요청자가 실제 룸에 있는지 확인
-        Player requester = PhotonNetwork.CurrentRoom.GetPlayer(requesterActorNumber);
-        if (requester == null)
-        {
-            Debug.LogWarning($"requester가 룸에 없습니다. actor={requesterActorNumber}");
-            return;
-        }
-
-        SpawnAndGiveOwnership(requesterActorNumber);
-    }
-
-    private void SpawnAndGiveOwnership(int requesterActorNumber)
-    {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            return;
-        }
-
-        Player requester = PhotonNetwork.CurrentRoom.GetPlayer(requesterActorNumber);
-        if (requester == null)
-        {
-            Debug.LogWarning($"requester가 룸에 없습니다. actor={requesterActorNumber}");
-            return;
-        }
-
-        int spawnId = Random.Range(0, _spawnPoints.Count);
-        Transform spawnPoint = _spawnPoints[spawnId];
-
-        // 마스터가 생성 (모든 클라에 생성됨)
-        // 리소스 폴더 대신 IPunPrefabPool 커스텀 풀로 등록된 프리팹을 대상으로 생성
-        GameObject obj = PhotonNetwork.Instantiate("Player",spawnPoint.position, spawnPoint.rotation);
-        
-        //해당 오브젝트의 뷰확인(네트워크 객체는 무조건 포톤뷰가 붙어야한다.)
-        PhotonView view = obj.GetComponent<PhotonView>();
-        if (view == null)
-        {
-            Debug.LogError("Spawn된 Player에 PhotonView가 없습니다.");
-            return;
-        }
-
-        // Player 프리팹의 PhotonView Ownership Transfer가 Takeover/Request여야 함
-        view.TransferOwnership(requester);
-
-        // 필요하면 여기서 초기화 이벤트를 Owner에게만 보내는 것도 가능
-        // view.RPC(nameof(InitOwnerOnly), requester, spawnPoint.position, spawnPoint.rotation);
-    }
 
     // 랜덤방 입장에 실패하면 자동으로 호출되는 콜백 함수
     public override void OnJoinRandomFailed(short returnCode, string message)
