@@ -3282,6 +3282,8 @@ MonoBehaviour:
   prefabs:
   - prefabId: Player
     prefab: {fileID: 4897730005635360349, guid: 3e4b1736365a25c4ea85fe43a160fdfe, type: 3}
+  - prefabId: Coin
+    prefab: {fileID: 2110226083984741658, guid: 219d52226b26e7b459df05646c81e44f, type: 3}
 --- !u!4 &329723779
 Transform:
   m_ObjectHideFlags: 0
@@ -4368,7 +4370,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -20, y: -20}
+  m_SizeDelta: {x: -40, y: -40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &412153735
 MonoBehaviour:
@@ -4390,7 +4392,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: x
+  m_text: size check
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3297ac6bfe2700d48abedf8c6ea2dfcc, type: 2}
   m_sharedMaterial: {fileID: 7045776389585299842, guid: 3297ac6bfe2700d48abedf8c6ea2dfcc, type: 2}
@@ -4436,7 +4438,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 3
+  m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -8989,6 +8991,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1072874146}
   - component: {fileID: 1072874148}
+  - component: {fileID: 1072874150}
   - component: {fileID: 1072874147}
   - component: {fileID: 1072874149}
   m_Layer: 5
@@ -9069,6 +9072,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_RoomLog
   _logText: {fileID: 412153735}
+--- !u!114 &1072874150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072874145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
+  m_ShowMaskGraphic: 1
 --- !u!4 &1076758825 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8730119249068889063, guid: 89364a38eefe93d4495fa803300fc501, type: 3}

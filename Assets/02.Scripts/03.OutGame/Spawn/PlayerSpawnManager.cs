@@ -50,4 +50,6 @@ public class PlayerSpawnManager : MonoBehaviour
         rotation = spawnPoint.rotation;
         return true;
     }
+    
+    
 }

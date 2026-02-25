@@ -19,7 +19,7 @@ public class PlayerAttackAbility : PlayerAbility
 
         if (_owner.Inputs.AttackPressed &&
             _attackTimer >= _owner.Stat.AttackSpeed &&
-            _owner.TryUseStamina(_owner.Stat.AttackCost))
+            _owner.GetAbility<PlayerStaminaAbility>().TryUseStamina(_owner.Stat.AttackCost))
         {
             _attackTimer = 0f;
 

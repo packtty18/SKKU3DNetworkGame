@@ -8,8 +8,6 @@ public class PlayerMoveAbility : PlayerAbility
     private CharacterController _characterController;
     private float _yVelocity = 0f;
     
-
-    private ConsumableStat _stamina => _owner.GetAbility<PlayerStaminaAbility>().Stamina;
     
     protected override void Awake()
     {
@@ -32,7 +30,7 @@ public class PlayerMoveAbility : PlayerAbility
         //점프
         if (_owner.Inputs.JumpPressed && 
             _characterController.isGrounded && 
-            _owner.TryUseStamina(_owner.Stat.JumpCost))
+            _owner.GetAbility<PlayerStaminaAbility>().TryUseStamina(_owner.Stat.AttackCost))
         {
             _yVelocity = _owner.Stat.JumpPower;
         }
@@ -42,7 +40,7 @@ public class PlayerMoveAbility : PlayerAbility
         
         //대쉬
         float resultSpeed = _owner.Stat.MoveSpeed;
-        if (_owner.Inputs.DashPressed && _owner.TryUseStamina(_owner.Stat.DashCost * deltaTime))
+        if (_owner.Inputs.DashPressed && _owner.GetAbility<PlayerStaminaAbility>().TryUseStamina(_owner.Stat.DashCost * deltaTime))
         {
             resultSpeed =  _owner.Stat.DashSpeed;
         }

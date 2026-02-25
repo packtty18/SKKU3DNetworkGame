@@ -3,37 +3,40 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
+using Random = System.Random;
 
 [RequireComponent(typeof(PhotonView))]
 public class PlayerController : MonoBehaviour, IDamageable
 {
     private const float RESPAWN_DELAY = 5f;
 
-    private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
-    private bool _isRespawning;
-
     public PhotonView PhotonView { get; private set; }
     public Animator Animator { get; private set; }
+    
     public EntityStat Stat;
-
-    private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
-    private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
     public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
 
+    public int Score = 0;
     public bool IsDead => _healthAbility.Health.IsEmpty;
     public bool Exhausted => _staminaAbility.Exhausted;
+    
+    
+    private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
+    private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
+    
+    private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
+    private bool _isRespawning;
 
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
         Animator = GetComponent<Animator>();
     }
-
-    public bool TryUseStamina(float amount)
-    {
-        return _staminaAbility != null && _staminaAbility.TryUseStamina(amount);
-    }
     
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
+    }
     public T GetAbility<T>() where T : PlayerAbility
     {
         var type = typeof(T);
@@ -54,11 +57,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         throw new Exception($"Ability {type.Name} not found on {gameObject.name}.");
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
-    }
-
     [PunRPC]
     public void TakeDamage(float damage, int attackerActorNumber)
     {
@@ -67,13 +65,30 @@ public class PlayerController : MonoBehaviour, IDamageable
             return;
         }
 
-        if (_healthAbility.TryTakeDamage(damage, attackerActorNumber))
+        if (_healthAbility.TryDecreaseHealth(damage, attackerActorNumber))
         {
             if (IsDead && PhotonView != null && PhotonView.IsMine && !_isRespawning)
             {
+                SpawnCoins();
                 StartCoroutine(RespawnAfterDelay());
             }
         }
+    }
+
+    private void SpawnCoins()
+    {
+        int counts = UnityEngine.Random.Range(1, 10);
+
+        for (int i = 0; i < counts; i++)
+        {
+            PhotonNetwork.Instantiate("Coin", transform.position, transform.rotation);
+        }
+    }
+
+    public void GetCoins(ScoreItem item)
+    {
+        Score += 10;
+        PhotonNetwork.Destroy(item.gameObject);
     }
 
     private IEnumerator RespawnAfterDelay()

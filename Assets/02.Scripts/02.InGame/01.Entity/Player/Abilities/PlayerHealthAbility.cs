@@ -29,8 +29,13 @@ public class PlayerHealthAbility : PlayerAbility
         Health = new ConsumableStat(_owner.Stat.MaxHealth, _owner.Stat.MaxHealth, _owner.Stat.RegenerateHealth);
     }
 
-    public bool TryTakeDamage(float damage, int attackerActorNumber)
+    public bool TryDecreaseHealth(float damage, int attackerActorNumber)
     {
+        if (!_owner.PhotonView.IsMine)
+        {
+            return false;
+        }
+        
         if (Health == null || damage <= 0f || Health.IsEmpty)
         {
             return false;
