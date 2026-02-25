@@ -4,24 +4,22 @@ public class PlayerMoveAbility : PlayerAbility
 {
     private static readonly int MoveHash = Animator.StringToHash("Move");
     private const float GRAVITY = -9f;
-    
-    private Animator _animator;
+
     private CharacterController _characterController;
     private float _yVelocity = 0f;
     
 
-    private ConsumableStat _stamina => _owner?.Stamina;
+    private ConsumableStat _stamina => _owner.GetAbility<PlayerStaminaAbility>().Stamina;
     
     protected override void Awake()
     {
         base.Awake();
-        _animator = GetComponent<Animator>();
         _characterController = GetComponent<CharacterController>();
     }
     
     private void Update()
     {
-        if (!_owner.PhotonView.IsMine) return;
+        if (_owner.IsDead || !_owner.PhotonView.IsMine) return;
         
         float deltaTime = Time.deltaTime;   
         
@@ -60,12 +58,12 @@ public class PlayerMoveAbility : PlayerAbility
     
     private void SetMoveMagnitude(float moveMagnitude)
     {
-        if (_animator == null)
+        if (_owner.Animator == null)
         {
             return;
         }
 
-        _animator.SetFloat(MoveHash, moveMagnitude);
+        _owner.Animator.SetFloat(MoveHash, moveMagnitude);
     }
 
 }

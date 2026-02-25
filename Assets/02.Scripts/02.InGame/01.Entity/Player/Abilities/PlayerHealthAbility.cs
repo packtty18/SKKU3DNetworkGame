@@ -1,9 +1,12 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class PlayerHealthAbility : PlayerAbility
 {
+    private static readonly int OnDeadHash = Animator.StringToHash("OnDead");
+    private static readonly int OnHitHash = Animator.StringToHash("OnHit");
     public ConsumableStat Health { get; private set; }
-
+    
     protected override void Awake()
     {
         base.Awake();
@@ -29,14 +32,76 @@ public class PlayerHealthAbility : PlayerAbility
     {
         if (Health.TryConsume(damage))
         {
-            Debug.Log("HP감소");
             if (Health.IsEmpty)
             {
-                //사망 처리
+                Debug.Log("사망");
+                PlayDeadNetworked();
             }
+            else
+            {
+                Debug.Log("히트");
+                PlayHitNetworked();
+            }
+            
             return true;
         }
 
         return false;
+    }
+    
+    private void PlayDeadNetworked()
+    {
+        PlayDead();
+
+        if (_owner == null || _owner.PhotonView == null || !_owner.PhotonView.IsMine)
+        {
+            return;
+        }
+
+        _owner.PhotonView.RPC(nameof(RpcPlayDead), RpcTarget.Others);
+    }
+    
+    [PunRPC]
+    private void RpcPlayDead()
+    {
+        PlayDead();
+    }
+    
+    private void PlayDead()
+    {
+        if (_owner.Animator == null)
+        {
+            return;
+        }
+
+        _owner.Animator.SetTrigger(OnDeadHash);
+    }
+    
+    private void PlayHitNetworked()
+    {
+        PlayHit();
+
+        if (_owner == null || _owner.PhotonView == null || !_owner.PhotonView.IsMine)
+        {
+            return;
+        }
+
+        _owner.PhotonView.RPC(nameof(RpcPlayHit), RpcTarget.Others);
+    }
+    
+    [PunRPC]
+    private void RpcPlayHit()
+    {
+        PlayHit();
+    }
+    
+    private void PlayHit()
+    {
+        if (_owner.Animator == null)
+        {
+            return;
+        }
+
+        _owner.Animator.SetTrigger(OnHitHash);
     }
 }

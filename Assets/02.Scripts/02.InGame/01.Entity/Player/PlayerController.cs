@@ -9,29 +9,20 @@ public class PlayerController : MonoBehaviour, IDamageable
     private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
 
     public PhotonView PhotonView { get; private set; }
+    public Animator Animator { get; private set; }
     public EntityStat Stat;
     
     private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
     private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
     public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
-    public ConsumableStat Health => _healthAbility?.Health;
-    public ConsumableStat Stamina => _staminaAbility?.Stamina;
 
-    public bool Exhausted
-    {
-        get => _staminaAbility != null && _staminaAbility.Exhausted;
-        set
-        {
-            if (_staminaAbility != null)
-            {
-                _staminaAbility.Exhausted = value;
-            }
-        }
-    }
-    
+    public bool IsDead => _healthAbility.Health.IsEmpty;
+    public bool Exhausted=>  _staminaAbility.Exhausted;
+
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
+        Animator = GetComponent<Animator>();
     }
 
     public bool TryUseStamina(float amount)
@@ -88,8 +79,14 @@ public class PlayerController : MonoBehaviour, IDamageable
     [PunRPC]
     public void TakeDamage(float damage)
     {
-        _healthAbility.TryTakeDamage(damage);
+        if (_healthAbility.TryTakeDamage(damage))
+        {
+            Debug.Log("데미지처리 성공");
+        }
+        else
+        {
+            Debug.Log("데미지처리 실패");
+        }
+        
     }
-    
-    
 }

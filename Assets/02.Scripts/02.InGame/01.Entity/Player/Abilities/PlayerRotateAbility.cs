@@ -19,7 +19,7 @@ public class PlayerRotateAbility : PlayerAbility
   
     private void Update()
     {
-        if (!_owner.PhotonView.IsMine) return;
+        if (_owner.IsDead || !_owner.PhotonView.IsMine) return;
 
         float mouseX = _owner.Inputs.LookInputX;
         float mouseY = _owner.Inputs.LookInputY;

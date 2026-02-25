@@ -17,7 +17,7 @@ public class PlayerStaminaAbility : PlayerAbility
 
     private void Update()
     {
-        if (_owner == null || _owner.PhotonView == null || !_owner.PhotonView.IsMine || Stamina == null)
+        if (_owner.IsDead || _owner.PhotonView == null || !_owner.PhotonView.IsMine || Stamina == null)
         {
             return;
         }
@@ -38,7 +38,7 @@ public class PlayerStaminaAbility : PlayerAbility
 
     public bool TryUseStamina(float amount)
     {
-        if (Stamina == null || Exhausted)
+        if (_owner.IsDead || Stamina == null || Exhausted)
         {
             return false;
         }

@@ -10,18 +10,10 @@ public class PlayerAttackAbility : PlayerAbility
 
     private int _prevAnimationNumber = 0;
     private float _attackTimer = 0f;
-    
-    private Animator _animator;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        _animator = GetComponent<Animator>();
-    }
 
     private void Update()
     {
-        if (!_owner.PhotonView.IsMine) return;
+        if (_owner.IsDead || !_owner.PhotonView.IsMine) return;
 
         _attackTimer += Time.deltaTime;
 
@@ -52,22 +44,12 @@ public class PlayerAttackAbility : PlayerAbility
 
     private void SetAttackCount(int attackCount)
     {
-        if (_animator == null)
-        {
-            return;
-        }
-
-        _animator.SetInteger(AttackCountHash, attackCount);
+        _owner.Animator.SetInteger(AttackCountHash, attackCount);
     }
 
     private void TriggerAttack()
     {
-        if (_animator == null)
-        {
-            return;
-        }
-
-        _animator.SetTrigger(OnAttackHash);
+        _owner.Animator.SetTrigger(OnAttackHash);
     }
 
     private void PlayAttackNetworked(int attackCount)

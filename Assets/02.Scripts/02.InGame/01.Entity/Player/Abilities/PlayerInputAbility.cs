@@ -1,14 +1,19 @@
+using System;
 using UnityEngine;
 
 public class PlayerInputAbility : PlayerAbility
 {
     public PlayerInputs Inputs { get; } = new PlayerInputs();
 
+    private void Start()
+    {
+        Inputs.ClearInputState();
+    }
+
     private void Update()
     {
         if (_owner == null || _owner.PhotonView == null || !_owner.PhotonView.IsMine)
         {
-            Inputs.ClearInputState();
             return;
         }
 

@@ -8,20 +8,10 @@ public class PlayerTauntAbility : PlayerAbility
     private static readonly int OnTauntCancelHash = Animator.StringToHash("OnTauntCancel");
     
     private bool _isTaunting;
-   
-
-    private Animator _animator;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        _animator = GetComponent<Animator>();
-    }
-
-
+    
     private void Update()
     {
-        if (!_owner.PhotonView.IsMine) return;
+        if (_owner.IsDead || !_owner.PhotonView.IsMine) return;
 
         int tauntNumber = GetRequestedTauntNumber();
         if (tauntNumber > 0)
@@ -30,7 +20,7 @@ public class PlayerTauntAbility : PlayerAbility
             {
                 CancelTauntNetworked();
             } 
-            _animator.SetInteger(TauntCountHash, tauntNumber);
+            _owner.Animator.SetInteger(TauntCountHash, tauntNumber);
             PlayTauntNetworked();
         }
 
@@ -66,14 +56,14 @@ public class PlayerTauntAbility : PlayerAbility
     
     private void PlayTaunt()
     {
-        if (_animator == null)
+        if (_owner.Animator == null)
         {
             return;
         }
         
         _isTaunting = true;
         
-        _animator.SetTrigger(OnTauntHash);
+        _owner.Animator.SetTrigger(OnTauntHash);
     }
 
     private void PlayTauntNetworked()
@@ -90,13 +80,13 @@ public class PlayerTauntAbility : PlayerAbility
 
     private void CancelTaunt()
     {
-        if (_animator == null)
+        if (_owner.Animator == null)
         {
             return;
         }
         _isTaunting = false;
-        _animator.ResetTrigger(OnTauntHash);
-        _animator.SetTrigger(OnTauntCancelHash);
+        _owner.Animator.ResetTrigger(OnTauntHash);
+        _owner.Animator.SetTrigger(OnTauntCancelHash);
     }
 
     private void CancelTauntNetworked()
@@ -110,6 +100,7 @@ public class PlayerTauntAbility : PlayerAbility
 
         _owner.PhotonView.RPC(nameof(RpcCancelTaunt), RpcTarget.Others);
     }
+    
     [PunRPC]
     private void RpcPlayTaunt()
     {

@@ -11,8 +11,8 @@ public class PlayerStatusUIAbility : PlayerAbility
 
     private void LateUpdate()
     {
-        _healthGuage.fillAmount = _owner.Health.Ratio;
-        _staminaGuage.fillAmount = _owner.Stamina.Ratio;
+        _healthGuage.fillAmount = _owner.GetAbility<PlayerHealthAbility>().Health.Ratio;
+        _staminaGuage.fillAmount = _owner.GetAbility<PlayerStaminaAbility>().Stamina.Ratio;
         
         //추후 꾸민다면 게이지 자체가 아닌 프레임의 색이 변하도록 조정
         if(_owner.Exhausted)
