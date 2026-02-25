@@ -63,6 +63,18 @@ public class PlayerStaminaAbility : PlayerAbility
         Stamina?.SetCurrent(staminaCurrent);
     }
 
+    public void ResetState()
+    {
+        if (Stamina == null || _owner == null || _owner.Stat == null)
+        {
+            return;
+        }
+
+        Stamina.SetCurrent(_owner.Stat.MaxStamina);
+        Exhausted = false;
+        _staminaRegenCooldown = 0f;
+    }
+
     private void InitializeResources()
     {
         if (_owner == null || _owner.Stat == null)

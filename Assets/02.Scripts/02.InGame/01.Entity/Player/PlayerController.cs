@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
@@ -6,18 +7,21 @@ using UnityEngine;
 [RequireComponent(typeof(PhotonView))]
 public class PlayerController : MonoBehaviour, IDamageable
 {
+    private const float RESPAWN_DELAY = 5f;
+
     private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
+    private bool _isRespawning;
 
     public PhotonView PhotonView { get; private set; }
     public Animator Animator { get; private set; }
     public EntityStat Stat;
-    
+
     private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
     private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
     public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
 
     public bool IsDead => _healthAbility.Health.IsEmpty;
-    public bool Exhausted=>  _staminaAbility.Exhausted;
+    public bool Exhausted => _staminaAbility.Exhausted;
 
     private void Awake()
     {
@@ -29,28 +33,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         return _staminaAbility != null && _staminaAbility.TryUseStamina(amount);
     }
-
-    public bool TryGetNetworkResourceState(out float health, out float stamina)
-    {
-        health = 0f;
-        stamina = 0f;
-
-        if (_healthAbility == null || _staminaAbility == null)
-        {
-            return false;
-        }
-
-        health = _healthAbility.Health != null ? _healthAbility.Health.Current : 0f;
-        stamina = _staminaAbility.Stamina != null ? _staminaAbility.Stamina.Current : 0f;
-        return true;
-    }
-
-    public void ApplyNetworkResourceState(float health, float stamina)
-    {
-        _healthAbility?.ApplyNetworkState(health);
-        _staminaAbility?.ApplyNetworkState(stamina);
-    }
-
+    
     public T GetAbility<T>() where T : PlayerAbility
     {
         var type = typeof(T);
@@ -68,25 +51,75 @@ public class PlayerController : MonoBehaviour, IDamageable
             return ability as T;
         }
 
-        throw new Exception($"어빌리티 {type.Name}를 {gameObject.name}에서 찾을 수 없습니다.");
+        throw new Exception($"Ability {type.Name} not found on {gameObject.name}.");
     }
-    
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
     }
-    
+
     [PunRPC]
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, int attackerActorNumber)
     {
-        if (_healthAbility.TryTakeDamage(damage))
+        if (IsDead || _isRespawning)
         {
-            Debug.Log("데미지처리 성공");
+            return;
         }
-        else
+
+        if (_healthAbility.TryTakeDamage(damage, attackerActorNumber))
         {
-            Debug.Log("데미지처리 실패");
+            if (IsDead && PhotonView != null && PhotonView.IsMine && !_isRespawning)
+            {
+                StartCoroutine(RespawnAfterDelay());
+            }
         }
-        
+    }
+
+    private IEnumerator RespawnAfterDelay()
+    {
+        _isRespawning = true;
+        yield return new WaitForSeconds(RESPAWN_DELAY);
+
+        if (PhotonView == null || !PhotonView.IsMine)
+        {
+            _isRespawning = false;
+            yield break;
+        }
+
+        Vector3 spawnPosition = transform.position;
+        Quaternion spawnRotation = transform.rotation;
+
+        if (PlayerSpawnManager.Instance != null &&
+            PlayerSpawnManager.Instance.TryGetRandomSpawnPoint(out Vector3 point, out Quaternion rotation))
+        {
+            spawnPosition = point;
+            spawnRotation = rotation;
+        }
+
+        PhotonView.RPC(nameof(RpcRespawn), RpcTarget.All, spawnPosition, spawnRotation);
+    }
+
+    [PunRPC]
+    private void RpcRespawn(Vector3 spawnPosition, Quaternion spawnRotation)
+    {
+        CharacterController characterController = GetComponent<CharacterController>();
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
+
+        transform.SetPositionAndRotation(spawnPosition, spawnRotation);
+
+        if (characterController != null)
+        {
+            characterController.enabled = true;
+        }
+
+        Animator?.Rebind();
+        Animator?.Update(0f);
+        _healthAbility?.ApplyNetworkState(Stat.MaxHealth);
+        _staminaAbility?.ResetState();
+        _isRespawning = false;
     }
 }

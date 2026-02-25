@@ -2084,7 +2084,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   Stat:
-    MaxHealth: 10
+    MaxHealth: 5
     RegenerateHealth: 0
     MaxStamina: 10
     RegenerateStamina: 1
@@ -2791,7 +2791,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatusUIAbility
   _healthGuage: {fileID: 8177719890555456876}
   _staminaGuage: {fileID: 6877047472872941871}
-  _normalStamniaColor: {r: 1, g: 0.50048995, b: 0, a: 1}
+  _normalStamniaColor: {r: 0, g: 0.3875985, b: 1, a: 1}
   _exhaustedStaminaColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &6156848792208712004
 GameObject:
