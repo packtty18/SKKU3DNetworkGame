@@ -5,7 +5,6 @@ public class PlayerStaminaAbility : PlayerAbility
     private const float STAMINA_REGEN_DELAY = 3f;
 
     public ConsumableStat Stamina { get; private set; }
-    public bool Exhausted { get; set; }
 
     private float _staminaRegenCooldown;
 
@@ -29,16 +28,33 @@ public class PlayerStaminaAbility : PlayerAbility
         }
 
         Stamina.TryRegenerate(Time.deltaTime);
-
-        if (Exhausted && Stamina.Ratio >= _owner.Stat.ExhaustRecoveryRatio)
+    }
+    
+    private void InitializeResources()
+    {
+        if (_owner == null || _owner.Stat == null)
         {
-            Exhausted = false;
+            return;
         }
+
+        Stamina = new ConsumableStat(_owner.Stat.MaxStamina, _owner.Stat.MaxStamina, _owner.Stat.RegenerateStamina);
+        _staminaRegenCooldown = 0f;
+    }
+    
+    public void ApplyNetworkState(float staminaCurrent)
+    {
+        Stamina?.SetCurrent(staminaCurrent);
+    }
+    
+    public void ResetState()
+    {
+        Stamina.SetCurrent(_owner.Stat.MaxStamina);
+        _staminaRegenCooldown = 0f;
     }
 
     public bool TryUseStamina(float amount)
     {
-        if (_owner.IsDead || Stamina == null || Exhausted)
+        if (_owner.IsDead || Stamina == null)
         {
             return false;
         }
@@ -50,40 +66,6 @@ public class PlayerStaminaAbility : PlayerAbility
 
         _staminaRegenCooldown = STAMINA_REGEN_DELAY;
 
-        if (Stamina.IsEmpty)
-        {
-            Exhausted = true;
-        }
-
         return true;
-    }
-
-    public void ApplyNetworkState(float staminaCurrent)
-    {
-        Stamina?.SetCurrent(staminaCurrent);
-    }
-
-    public void ResetState()
-    {
-        if (Stamina == null || _owner == null || _owner.Stat == null)
-        {
-            return;
-        }
-
-        Stamina.SetCurrent(_owner.Stat.MaxStamina);
-        Exhausted = false;
-        _staminaRegenCooldown = 0f;
-    }
-
-    private void InitializeResources()
-    {
-        if (_owner == null || _owner.Stat == null)
-        {
-            return;
-        }
-
-        Stamina = new ConsumableStat(_owner.Stat.MaxStamina, _owner.Stat.MaxStamina, _owner.Stat.RegenerateStamina);
-        Exhausted = false;
-        _staminaRegenCooldown = 0f;
     }
 }
