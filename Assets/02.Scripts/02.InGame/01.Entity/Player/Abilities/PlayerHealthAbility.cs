@@ -28,6 +28,12 @@ public class PlayerHealthAbility : PlayerAbility
 
         Health = new ConsumableStat(_owner.Stat.MaxHealth, _owner.Stat.MaxHealth, _owner.Stat.RegenerateHealth);
     }
+    
+    public void ResetState()
+    {
+        Health.SetCurrent(_owner.Stat.MaxStamina);
+    }
+
 
     public bool TryDecreaseHealth(float damage, int attackerActorNumber)
     {
@@ -45,19 +51,20 @@ public class PlayerHealthAbility : PlayerAbility
 
         if (Health.IsEmpty)
         {
-            PhotonRoomManager.Instance.OnPlayerDeath(attackerActorNumber);
-            PlayDeadNetworked();
+            PhotonRoomManager.Instance.TryOnPlayerDeath(attackerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
+            TryPlayerDead();
         }
         else
         {
-            PlayHitNetworked();
+            TryPlayerHit();
         }
 
         return true;
     }
 
-    private void PlayDeadNetworked()
+    private void TryPlayerDead()
     {
+        _owner?.TryCollisionEnabled(false);
         PlayDead();
 
         if (_owner == null || _owner.PhotonView == null || !_owner.PhotonView.IsMine)
@@ -84,7 +91,7 @@ public class PlayerHealthAbility : PlayerAbility
         _owner.Animator.SetTrigger(OnDeadHash);
     }
 
-    private void PlayHitNetworked()
+    private void TryPlayerHit()
     {
         PlayHit();
 

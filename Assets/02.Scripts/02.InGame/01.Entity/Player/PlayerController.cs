@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour, IDamageable
     [Header("reference")]
     public PhotonView PhotonView { get; private set; }
     public Animator Animator { get; private set; }
+    public Collider Collision { get; private set; }
+    public CharacterController CharacterController { get; private set; }
     
     [Header("memeber")]
     public EntityStat Stat;
@@ -22,24 +24,24 @@ public class PlayerController : MonoBehaviour, IDamageable
     
     [Header("Property")]
     public bool IsDead => _healthAbility.Health.IsEmpty;
-    public bool Exhausted => _staminaAbility.Exhausted;
     
     public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
     private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
     private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
-    
-    
 
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
         Animator = GetComponent<Animator>();
+        Collision = GetComponent<Collider>();
+        CharacterController = GetComponent<CharacterController>();
     }
     
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
     }
+    
     public T GetAbility<T>() where T : PlayerAbility
     {
         var type = typeof(T);
@@ -106,23 +108,49 @@ public class PlayerController : MonoBehaviour, IDamageable
     [PunRPC]
     private void RpcRespawn(Vector3 spawnPosition, Quaternion spawnRotation)
     {
-        CharacterController characterController = GetComponent<CharacterController>();
-        if (characterController != null)
-        {
-            characterController.enabled = false;
-        }
-
+        //랜덤위치로 이동
         transform.SetPositionAndRotation(spawnPosition, spawnRotation);
-
-        if (characterController != null)
-        {
-            characterController.enabled = true;
-        }
-
+        
+        //애니메이션 초기화
         Animator?.Rebind();
         Animator?.Update(0f);
-        _healthAbility?.ApplyNetworkState(Stat.MaxHealth);
+        
+        //체력,스태미너 초기화
+        _healthAbility?.ResetState();
         _staminaAbility?.ResetState();
+        
+        //충돌활성화
+        SetCollisionEnabled(true);
+        
         _isRespawning = false;
+    }
+
+    public void TryCollisionEnabled(bool enabled)
+    {
+        if (!PhotonView.IsMine)
+        {
+            return;
+        }
+        
+        //내 상태를 바꾸고 모든 사람에게 전달함
+        SetCollisionEnabled(enabled);
+        PhotonView.RPC(nameof(RpcSetCollisionEnabled), RpcTarget.Others, enabled);
+    }
+
+    [PunRPC]
+    private void RpcSetCollisionEnabled(bool enabled)
+    {
+        SetCollisionEnabled(enabled);
+    }
+
+
+    private void SetCollisionEnabled(bool enabled)
+    {
+        if (Collision == null)
+        {
+            return;
+        }
+        
+        Collision.enabled = enabled;
     }
 }

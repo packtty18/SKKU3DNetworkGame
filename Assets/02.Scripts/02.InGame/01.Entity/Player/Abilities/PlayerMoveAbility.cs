@@ -44,12 +44,6 @@ public class PlayerMoveAbility : PlayerAbility
         {
             resultSpeed =  _owner.Stat.DashSpeed;
         }
-
-        if (_owner.Exhausted)
-        {
-            resultSpeed = _owner.Stat.ExhaustSpeed;
-        }
-
         _characterController.Move(dir * resultSpeed * Time.deltaTime);
     }
     
