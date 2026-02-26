@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -8,7 +9,7 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
     private string _version = "0.0.1";
     private string _nickname = "Player";
     [SerializeField] private PhotonPrefabPool _prefabPool;
-    
+
     private void Start()
     {
         if (_prefabPool == null)
@@ -65,25 +66,6 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRandomRoom();
     }
     
-    // 방 입장에 성공하면 자동으로 호출되는 콜백 함수
-    public override void OnJoinedRoom()
-    {
-        Debug.Log("룸 입장 완료!");
-        
-        Debug.Log($"룸: {PhotonNetwork.CurrentRoom.Name}");
-        Debug.Log($"플레이어 인원: {PhotonNetwork.CurrentRoom.PlayerCount}");
-        
-        // 룸에 입장한 플레이어 정보
-        Dictionary<int, Player> roomPlayers = PhotonNetwork.CurrentRoom.Players;
-        foreach (KeyValuePair<int, Player> player in roomPlayers)
-        {
-            Debug.Log($"{player.Value.NickName} : {player.Value.ActorNumber}");
-        }
-        
-        // 리소스 폴더 대신 IPunPrefabPool 커스텀 풀로 등록된 프리팹을 대상으로 생성
-        PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity);
-    }
-
     // 랜덤방 입장에 실패하면 자동으로 호출되는 콜백 함수
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
