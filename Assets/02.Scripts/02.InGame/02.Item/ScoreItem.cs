@@ -2,13 +2,14 @@ using System;
 using Photon.Pun;
 using UnityEngine;
 
-public class ScoreItem : MonoBehaviourPunCallbacks
+public class ScoreItem : MonoBehaviourPun
 {
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out PlayerController controller) && !controller.IsDead)
+        if (other.TryGetComponent( out PlayerController player) && !player.IsDead)
         {
-            controller.GetCoins(this);
+            player.Score += 100;
+            ItemObjectFactory.Instance.RequestDelete(photonView.ViewID);
         }
     }
 }
