@@ -1998,7 +1998,7 @@ GameObject:
   - component: {fileID: 188095864821003265}
   - component: {fileID: 1871565052957952667}
   - component: {fileID: 995827243595035047}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MyPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -2285,6 +2285,12 @@ MonoBehaviour:
   - Type: 9
     SynchronizeType: 0
     Name: OnTauntCancel
+  - Type: 9
+    SynchronizeType: 0
+    Name: OnDead
+  - Type: 9
+    SynchronizeType: 0
+    Name: OnHit
   m_SynchronizeLayers:
   - SynchronizeType: 1
     LayerIndex: 0
