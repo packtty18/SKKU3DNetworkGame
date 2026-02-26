@@ -45,7 +45,7 @@ public class PlayerHealthAbility : PlayerAbility
 
         if (Health.IsEmpty)
         {
-            PhotonRoomManager.Instance.OnPlayerDeath(attackerActorNumber);
+            PhotonRoomManager.Instance.TryOnPlayerDeath(attackerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
             PlayDeadNetworked();
         }
         else

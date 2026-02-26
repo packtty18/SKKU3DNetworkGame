@@ -36,7 +36,9 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
             Debug.Log("스폰매니저가 존재하지 않음");
         }
     }
-
+    
+    
+    //이건 오버라이드라 다른 처리를 하지 않아도 알아서 서버에 반영됨
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         OnDataChanged?.Invoke();
@@ -49,11 +51,19 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         OnPlayerLeft?.Invoke(otherPlayer);
     }
 
-    public void OnPlayerDeath(int attackerActorNumber)
+    public void TryOnPlayerDeath(int attackerActorNumber, int victimActorNumber)
+    {
+        OnPlayerDeath(attackerActorNumber,victimActorNumber);
+        photonView.RPC(nameof(OnPlayerDeath), RpcTarget.Others, attackerActorNumber,victimActorNumber);
+    }
+    
+    //이건 직접 만든거라 네트워크에 반영 안됨
+    [PunRPC]
+    private void OnPlayerDeath(int attackerActorNumber , int victimActorNumber)
     {
         string attackerNickName = _room.Players[attackerActorNumber].NickName;
-        string myNickName = PhotonNetwork.LocalPlayer.NickName;
+        string victimNickName = _room.Players[victimActorNumber].NickName;
         
-        OnPlayerDeathed?.Invoke(attackerNickName, myNickName);
+        OnPlayerDeathed?.Invoke(attackerNickName, victimNickName);
     }
 }
