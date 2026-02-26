@@ -8,24 +8,27 @@ using Random = System.Random;
 [RequireComponent(typeof(PhotonView))]
 public class PlayerController : MonoBehaviour, IDamageable
 {
-    private const float RESPAWN_DELAY = 5f;
+    private const float RESPAWN_DELAY = 3f;
 
+    [Header("reference")]
     public PhotonView PhotonView { get; private set; }
     public Animator Animator { get; private set; }
     
+    [Header("memeber")]
     public EntityStat Stat;
-    public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
-
     public int Score = 0;
+    private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
+    private bool _isRespawning;
+    
+    [Header("Property")]
     public bool IsDead => _healthAbility.Health.IsEmpty;
     public bool Exhausted => _staminaAbility.Exhausted;
     
-    
+    public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
     private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
     private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
     
-    private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
-    private bool _isRespawning;
+    
 
     private void Awake()
     {
@@ -69,26 +72,11 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             if (IsDead && PhotonView != null && PhotonView.IsMine && !_isRespawning)
             {
-                SpawnCoins();
+                ItemObjectFactory.Instance.RequestSpawnCoins(transform.position + new Vector3(0,1,0));
+                
                 StartCoroutine(RespawnAfterDelay());
             }
         }
-    }
-
-    private void SpawnCoins()
-    {
-        int counts = UnityEngine.Random.Range(1, 10);
-
-        for (int i = 0; i < counts; i++)
-        {
-            PhotonNetwork.Instantiate("Coin", transform.position, transform.rotation);
-        }
-    }
-
-    public void GetCoins(ScoreItem item)
-    {
-        Score += 10;
-        PhotonNetwork.Destroy(item.gameObject);
     }
 
     private IEnumerator RespawnAfterDelay()
