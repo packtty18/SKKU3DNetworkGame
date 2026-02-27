@@ -5,6 +5,7 @@ public class PlayerNetworkSyncAbility : PlayerAbility, IPunObservable
 {
     private PlayerHealthAbility _healthAbility =>  _owner.GetComponent<PlayerHealthAbility>();
     private PlayerStaminaAbility _staminaAbility =>  _owner.GetComponent<PlayerStaminaAbility>();
+    
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (_owner == null)

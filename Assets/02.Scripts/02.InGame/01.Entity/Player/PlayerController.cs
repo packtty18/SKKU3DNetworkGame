@@ -118,8 +118,8 @@ public class PlayerController : MonoBehaviour, IDamageable
         Animator?.Update(0f);
         
         //체력,스태미너 초기화
-        _healthAbility?.ResetState();
-        _staminaAbility?.ResetState();
+        _healthAbility?.ResetStat();
+        _staminaAbility?.ResetStat();
         
         //충돌활성화
         SetCollisionEnabled(true);

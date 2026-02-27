@@ -29,9 +29,9 @@ public class PlayerHealthAbility : PlayerAbility
         Health = new ConsumableStat(_owner.Stat.MaxHealth, _owner.Stat.MaxHealth, _owner.Stat.RegenerateHealth);
     }
     
-    public void ResetState()
+    public void ResetStat()
     {
-        Health.SetCurrent(_owner.Stat.MaxStamina);
+        Health.SetCurrent(_owner.Stat.MaxHealth);
     }
 
 
@@ -41,14 +41,12 @@ public class PlayerHealthAbility : PlayerAbility
         {
             return false;
         }
-        
-        if (Health == null || damage <= 0f || Health.IsEmpty)
+
+        if (!Health.TryConsume(damage, true))
         {
             return false;
         }
         
-        Health.SetCurrent(Health.Current - damage);
-
         if (Health.IsEmpty)
         {
             PhotonRoomManager.Instance.TryOnPlayerDeath(attackerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
