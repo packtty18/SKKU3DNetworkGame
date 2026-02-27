@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
-using Random = System.Random;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(PhotonView))]
 public class PlayerController : MonoBehaviour, IDamageable
@@ -74,7 +74,9 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             if (IsDead && PhotonView != null && PhotonView.IsMine && !_isRespawning)
             {
-                ItemObjectFactory.Instance.RequestSpawnCoins(transform.position + new Vector3(0,1,0));
+                int counts = Random.Range(1, 10);
+
+                ItemObjectFactory.Instance.RequestSpawnCoins(transform.position + new Vector3(0,1,0),counts);
                 
                 StartCoroutine(RespawnAfterDelay());
             }
