@@ -1,89 +1,176 @@
-
-using System;
-using Sirenix.OdinInspector;
-using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyMoveAbility : EnemyAbility
 {
+    private const float MinDirectionSqrMagnitude = 0.0001f;
+    private const float PathReachEpsilon = 0.05f;
+    private const float RandomPositionSampleRadius = 3f;
+
     private NavMeshAgent _agent;
-    
+
     protected override void Awake()
     {
-        base.Awake();   
+        base.Awake();
         _agent = GetComponent<NavMeshAgent>();
     }
 
     private void Start()
     {
-        SetAgentStat();
-        _agent.updateRotation = false; // Agent 자동 회전 금지, 우리가 직접 회전
+        if (_agent == null || _owner == null || _owner.Stat == null)
+        {
+            return;
+        }
+
+        _agent.speed = _owner.Stat.MoveSpeed;
+        _agent.updateRotation = false;
     }
 
     private void Update()
     {
-        UpdateRotation();
+        if (_agent == null || _owner == null || _owner.Stat == null)
+        {
+            return;
+        }
+
+        if (_agent.isStopped)
+        {
+            return;
+        }
+
+        UpdateRotation(_agent.destination, Time.deltaTime);
     }
 
-    private void SetAgentStat()
+    public bool SetDestination(Vector3 worldPosition)
     {
-        _agent.speed = _owner.Stat.MoveSpeed;
-    }
-    
-    
-    private void UpdateRotation()
-    {
-        if (_agent == null)
-        {
-            return;
-        }
-        Vector3 dir = _agent.destination  - transform.position;
-        dir.y = 0.0f; //y는 신경쓰지 않음
-        
-        //이미 해당 방향을 보고 있는 경우
-        if (dir.sqrMagnitude <= 0.0001f)
-        {
-            return;
-        }
-        
-        //회전  수행
-        Quaternion targetRot = Quaternion.LookRotation(dir.normalized, Vector3.up);
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            targetRot,
-            _owner.Stat.RotateSpeed * Time.deltaTime
-        );
-    }
-    
-    [Button]
-    public bool SetDestination(Vector3 worldPos)
-    {
-        if (_agent == null || _agent.enabled == false)
+        if (_agent == null || !_agent.enabled)
         {
             return false;
         }
 
         _agent.isStopped = false;
-        return _agent.SetDestination(worldPos);
+        return _agent.SetDestination(worldPosition);
     }
-    
-    [Button]
-    public bool Warp(Vector3 worldPos)
+
+    public bool Warp(Vector3 worldPosition)
     {
-        if (_agent == null || _agent.enabled == false)
+        if (_agent == null || !_agent.enabled)
         {
             return false;
         }
 
-        return _agent.Warp(worldPos);
+        return _agent.Warp(worldPosition);
     }
-    
-    [Button]
-    public void StopAgentMove()
+
+    public void StopMove()
     {
+        if (_agent == null || !_agent.enabled)
+        {
+            return;
+        }
+
         _agent.isStopped = true;
         _agent.ResetPath();
+    }
+
+    public bool HasReachedDestination(float extraDistance = 0f)
+    {
+        if (_agent == null || !_agent.enabled)
+        {
+            return true;
+        }
+
+        if (_agent.pathPending)
+        {
+            return false;
+        }
+
+        float requiredDistance = Mathf.Max(_agent.stoppingDistance + extraDistance, PathReachEpsilon);
+        if (_agent.remainingDistance > requiredDistance)
+        {
+            return false;
+        }
+
+        if (_agent.hasPath && _agent.velocity.sqrMagnitude > MinDirectionSqrMagnitude)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void RotateToward(Vector3 worldPosition, float deltaTime)
+    {
+        if (_owner == null || _owner.Stat == null)
+        {
+            return;
+        }
+
+        UpdateRotation(worldPosition, deltaTime);
+    }
+
+    public bool TryGetRandomReachablePoint(Vector3 center, float radius, out Vector3 point)
+    {
+        point = center;
+
+        if (!TrySampleNavMeshPosition(center, radius, out Vector3 sampledPoint))
+        {
+            return false;
+        }
+
+        if (!HasPath(sampledPoint))
+        {
+            return false;
+        }
+
+        point = sampledPoint;
+        return true;
+    }
+
+    private void UpdateRotation(Vector3 worldPosition, float deltaTime)
+    {
+        Vector3 direction = worldPosition - transform.position;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude <= MinDirectionSqrMagnitude)
+        {
+            return;
+        }
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            _owner.Stat.RotateSpeed * deltaTime
+        );
+    }
+
+    private static bool TrySampleNavMeshPosition(Vector3 center, float radius, out Vector3 sampledPoint)
+    {
+        Vector3 randomOffset = Random.insideUnitSphere * Mathf.Max(radius, 0.1f);
+        randomOffset.y = 0f;
+        Vector3 candidate = center + randomOffset;
+
+        if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, RandomPositionSampleRadius, NavMesh.AllAreas))
+        {
+            sampledPoint = hit.position;
+            return true;
+        }
+
+        sampledPoint = center;
+        return false;
+    }
+
+    private bool HasPath(Vector3 destination)
+    {
+        if (_agent == null || !_agent.enabled)
+        {
+            return false;
+        }
+
+        NavMeshPath path = new NavMeshPath();
+        bool isPathCalculated = _agent.CalculatePath(destination, path);
+        return isPathCalculated && path.status == NavMeshPathStatus.PathComplete;
     }
 }

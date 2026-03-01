@@ -1,49 +1,44 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public class EnemyStateMachine
 {
-    private readonly EnemyController _controller;
-    private readonly Dictionary<EnemyStateId, IEnemyState> states;
-    private IEnemyState current;
+    private readonly Dictionary<EnemyStateId, IEnemyState> _states;
+    private IEnemyState _current;
 
-    public EnemyStateId CurrentId => current.Id;
+    public EnemyStateId CurrentId => _current != null ? _current.Id : EnemyStateId.Idle;
 
     public EnemyStateMachine(EnemyController controller)
     {
-        _controller = controller;
+        _states = new Dictionary<EnemyStateId, IEnemyState>
+        {
+            { EnemyStateId.Idle, new EnemyIdleState(controller) },
+            { EnemyStateId.Patrol, new EnemyPatrolState(controller) },
+            { EnemyStateId.Chase, new EnemyChaseState(controller) },
+            { EnemyStateId.Attack, new EnemyAttackState(controller) },
+            { EnemyStateId.Hit, new EnemyHitState(controller) },
+            { EnemyStateId.Dead, new EnemyDeadState(controller) },
+        };
     }
 
     public void Change(EnemyStateId next)
     {
-        //current를 재호출 한것이라면 중복시행이니 안함
-        if (current != null && current.Id == next)
+        if (_current != null && _current.Id == next)
         {
             return;
         }
-        
-        //State 캐싱
-        IEnemyState nextState = null;
-        if (states.ContainsKey(next))
+
+        if (!_states.TryGetValue(next, out IEnemyState nextState))
         {
-            nextState = states[next];
+            return;
         }
-        else
-        {
-            switch (next)
-            {
-                //case EnemyStateId.Idle : nextState = new EnemyIdleState(_controller); break;
-                
-            }
-        }
-        
-        current?.Exit();
-        current = nextState;
-        current.Enter();
+
+        _current?.Exit();
+        _current = nextState;
+        _current.Enter();
     }
 
-    public void Tick(float dt)
+    public void Tick(float deltaTime)
     {
-        current?.Tick(dt);
+        _current?.Tick(deltaTime);
     }
 }

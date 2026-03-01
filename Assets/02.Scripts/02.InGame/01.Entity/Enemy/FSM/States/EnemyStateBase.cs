@@ -1,20 +1,23 @@
-using UnityEngine;
-
-public class EnemyStateBase : IEnemyState
+public abstract class EnemyStateBase : IEnemyState
 {
-    public EnemyStateId Id { get; }
-    public void Enter()
+    protected EnemyStateBase(EnemyController owner)
     {
-        Debug.Log($"{Id} state 실행");
+        Owner = owner;
     }
 
-    public void Tick(float dt)
+    protected EnemyController Owner { get; }
+
+    public abstract EnemyStateId Id { get; }
+
+    public virtual void Enter()
     {
-        
     }
 
-    public void Exit()
+    public virtual void Tick(float deltaTime)
     {
-        Debug.Log($"{Id} state 종료");
+    }
+
+    public virtual void Exit()
+    {
     }
 }

@@ -29,6 +29,16 @@ public class PlayerController : MonoBehaviour, IDamageable
     private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
     private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
 
+    private void OnEnable()
+    {
+        PlayerRegistryManager.Instance.RegisterPlayer(this);
+    }
+
+    private void OnDisable()
+    {
+        PlayerRegistryManager.Instance.UnregisterPlayer(this);
+    }
+
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
