@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,11 @@ public class EnemyTargetingAbility : EnemyAbility
         }
 
         float bestDistanceSqr = searchRange * searchRange;
+        
+        if(PlayerRegistryManager.Instance == null)
+        {
+            throw new Exception("PlayerRegistryManager not found");
+        }
         IReadOnlyList<PlayerController> players = PlayerRegistryManager.Instance.Players;
 
         for (int index = 0; index < players.Count; index++)
