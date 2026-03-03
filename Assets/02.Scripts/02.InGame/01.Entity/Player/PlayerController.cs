@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(PhotonView))]
@@ -15,10 +16,11 @@ public class PlayerController : MonoBehaviour, IDamageable
     public Animator Animator { get; private set; }
     public Collider Collision { get; private set; }
     public CharacterController CharacterController { get; private set; }
+    [SerializeField] private GameObject _weaponGameObject;
+    
     
     [Header("memeber")]
     public EntityStat Stat;
-    public int Score = 0;
     private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
     private bool _isRespawning;
     
@@ -32,11 +34,13 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void OnEnable()
     {
         PlayerRegistryManager.Instance.RegisterPlayer(this);
+        ScoreManager.OnMyScoreChanged += TrySetWeaponScale;
     }
 
     private void OnDisable()
     {
         PlayerRegistryManager.Instance.UnregisterPlayer(this);
+        ScoreManager.OnMyScoreChanged -= TrySetWeaponScale;
     }
 
     private void Awake()
@@ -87,7 +91,7 @@ public class PlayerController : MonoBehaviour, IDamageable
                 int counts = Random.Range(1, 10);
 
                 ItemObjectFactory.Instance.RequestSpawnCoins(transform.position + new Vector3(0,1,0),counts);
-                
+                ScoreManager.Instance.SubtractScore((int)(ScoreManager.Instance.MyScore*0.5f));
                 StartCoroutine(RespawnAfterDelay());
             }
         }
@@ -130,7 +134,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         //체력,스태미너 초기화
         _healthAbility?.ResetStat();
         _staminaAbility?.ResetStat();
-        
+        TrySetWeaponScale(ScoreManager.Instance.MyScoreLevel);
         //충돌활성화
         SetCollisionEnabled(true);
         
@@ -164,5 +168,32 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
         
         Collision.enabled = enabled;
+    }
+
+    public void TrySetWeaponScale(int level)
+    {
+        if (!PhotonView.IsMine)
+        {
+            return;
+        }
+        
+        SetWeaponScale(level);
+        PhotonView.RPC(nameof(RpcSetWeaponScale), RpcTarget.Others, level);
+    }
+    [PunRPC]
+    private void RpcSetWeaponScale(int level)
+    {
+        SetWeaponScale(level);
+    }
+
+    private void SetWeaponScale(int level)
+    {
+        if (_weaponGameObject == null)
+        {
+            return;
+        }
+
+        float scale = 1 + level*1f; //원래는 0.1임. 변화를 관찰하기 위해 임시 변경
+        _weaponGameObject.transform.localScale = new Vector3(scale, scale, scale);
     }
 }
