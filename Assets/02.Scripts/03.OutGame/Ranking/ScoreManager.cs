@@ -15,7 +15,7 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     [ShowInInspector, ReadOnly] private int _myScore;
     public int MyScore => _myScore;
 
-    private int _myScoreLevel = -1;
+    [SerializeField,ReadOnly] int _myScoreLevel = 0;
     public int  MyScoreLevel => _myScoreLevel;
 
     [ShowInInspector, ReadOnly] private Dictionary<int, ScoreData> _scores = new();
@@ -62,7 +62,7 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         _myScore = 0;
-        _myScoreLevel = -1;
+        _myScoreLevel = 0;
         _scores.Clear();
         OnDataChanged?.Invoke();
     }
@@ -74,13 +74,13 @@ public class ScoreManager : MonoBehaviourPunCallbacks
             OnDataChanged?.Invoke();
         }
     }
-
+    [Button]
     public void AddScore(int score)
     {
         _myScore += score;
         Refresh();
     }
-
+    [Button]
     public void SubtractScore(int score)
     {
         _myScore = Mathf.Max(_myScore - score, 0);
