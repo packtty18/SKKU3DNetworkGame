@@ -61,8 +61,8 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void OnPlayerDeath(int attackerActorNumber , int victimActorNumber)
     {
-        string attackerNickName = _room.Players[attackerActorNumber].NickName;
-        string victimNickName = _room.Players[victimActorNumber].NickName;
+        string attackerNickName = _room.Players[attackerActorNumber]?.NickName;
+        string victimNickName = _room.Players[victimActorNumber]?.NickName;
         
         OnPlayerDeathed?.Invoke(attackerNickName, victimNickName);
     }

@@ -30,7 +30,7 @@ public class PlayerMoveAbility : PlayerAbility
         //점프
         if (_owner.Inputs.JumpPressed && 
             _characterController.isGrounded && 
-            _owner.GetAbility<PlayerStaminaAbility>().TryUseStamina(_owner.Stat.AttackCost))
+            _owner.GetAbility<PlayerStaminaAbility>().TryUseStamina(_owner.Stat.JumpCost))
         {
             _yVelocity = _owner.Stat.JumpPower;
         }

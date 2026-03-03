@@ -4,7 +4,7 @@ using UnityEngine;
 //소모가능한 자원에 대한 도메인
 //체력, 스테미너
 [Serializable]
-public sealed class ConsumableStat
+public class ConsumableStat
 {
     public float Max { get; private set; }          //최대 보유량
     public float Current { get; private set; }      //현재 보유량    
@@ -19,6 +19,7 @@ public sealed class ConsumableStat
         Initialize(max, current, regenerate);
     }
     
+
     //Max는 0보다 커야하며, current와 regenrate는 0이상이어야한다.
     public void Initialize(float max, float current, float regenerate)
     {
@@ -40,22 +41,21 @@ public sealed class ConsumableStat
         Current = Mathf.Clamp(current, 0f, Max);
     }
     
-    //소모 요구
-    public bool TryConsume(float amount)
+    
+    //소모 요구 (allowPartial가 true면 amount가 current보다 커도 적용)
+    public bool TryConsume(float amount, bool allowPartial = false)
     {
         if (amount <= 0f)
         {
             return true;
         }
 
-        float next = Current - amount;
-
-        if (next < 0f)
+        if (!allowPartial && amount > Current)
         {
             return false;
         }
 
-        Current = next;
+        Current = Mathf.Max(Current - amount, 0f);
         return true;
     }
 
@@ -76,11 +76,6 @@ public sealed class ConsumableStat
 
         Current = next;
         return true;
-    }
-
-    public bool TryRegenerateOnce()
-    {
-        return TryRecover(Regenerate);
     }
 
     // 초당 회복 지원용 (deltaTime 기반)

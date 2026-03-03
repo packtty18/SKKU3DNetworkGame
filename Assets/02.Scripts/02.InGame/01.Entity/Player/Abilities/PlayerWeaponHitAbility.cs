@@ -11,14 +11,21 @@ public class PlayerWeaponHitAbility : PlayerAbility
 
         if (other.TryGetComponent(out IDamageable damageable))
         {
-            int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+            
             //or _onwer.PhotonView.Owner.ActorNumber
             //damageable.TakeDamage(_owner.Stat.AttackDamage);
             //내가 아닌 상대방에게 데미지 적용
-            PlayerController target = other.GetComponent<PlayerController>();
-            target.PhotonView.RPC(nameof(damageable.TakeDamage), RpcTarget.All, _owner.Stat.AttackDamage,actorNumber);
-            
-            _owner.GetAbility<PlayerWeaponColliderAbility>().DeactiveCollider();
+            int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+            if (other.TryGetComponent(out PlayerController player))
+            {
+                
+                player.PhotonView.RPC(nameof(damageable.TakeDamage), RpcTarget.All, _owner.Stat.AttackDamage,actorNumber);
+                _owner.GetAbility<PlayerWeaponColliderAbility>().DeactiveCollider();
+            }
+            else
+            {
+                damageable.TakeDamage(_owner.Stat.AttackDamage,actorNumber);
+            }
         }
     }
 }

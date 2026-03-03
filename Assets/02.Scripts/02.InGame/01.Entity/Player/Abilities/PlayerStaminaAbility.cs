@@ -46,7 +46,7 @@ public class PlayerStaminaAbility : PlayerAbility
         Stamina?.SetCurrent(staminaCurrent);
     }
     
-    public void ResetState()
+    public void ResetStat()
     {
         Stamina.SetCurrent(_owner.Stat.MaxStamina);
         _staminaRegenCooldown = 0f;

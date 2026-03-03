@@ -12,9 +12,7 @@ public class EntityStat
     //스테미나
     public float MaxStamina = 10;
     public float RegenerateStamina = 1;
-    public float ExhaustRecoveryRatio = 1f / 3f;
     public float MoveSpeed = 5;
-    public float ExhaustSpeed = 2f;
     public float DashSpeed = 10;
     public float DashCost = 2f;
     
