@@ -9,14 +9,14 @@ using UnityEngine;
 public class ScoreManager : MonoBehaviourPunCallbacks
 {
     private const string SCORE_KEY = "score";
+    private const int LEVEL_THRESHOLD = 1000;
 
     public static ScoreManager Instance;
 
     [ShowInInspector, ReadOnly] private int _myScore;
     public int MyScore => _myScore;
-
-    [SerializeField,ReadOnly] int _myScoreLevel = 0;
-    public int  MyScoreLevel => _myScoreLevel;
+    [ShowInInspector, ReadOnly]private int currentLevel;
+    [ShowInInspector, ReadOnly]public int  MyScoreLevel => _myScore / LEVEL_THRESHOLD;
 
     [ShowInInspector, ReadOnly] private Dictionary<int, ScoreData> _scores = new();
     public IReadOnlyDictionary<int, ScoreData> Scores => _scores;
@@ -40,7 +40,7 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         _scores.Clear();
-
+        currentLevel = 0;
         Player[] players = PhotonNetwork.PlayerList;
         for (int i = 0; i < players.Length; i++)
         {
@@ -62,7 +62,6 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         _myScore = 0;
-        _myScoreLevel = 0;
         _scores.Clear();
         OnDataChanged?.Invoke();
     }
@@ -98,11 +97,10 @@ public class ScoreManager : MonoBehaviourPunCallbacks
         {
             [SCORE_KEY] = _myScore
         };
-
-        int currentLevel = _myScore / 1000;
-        if (_myScoreLevel != currentLevel)
+        
+        if (MyScoreLevel != currentLevel)
         {
-            _myScoreLevel = currentLevel;
+            currentLevel = MyScoreLevel;
             OnMyScoreChanged?.Invoke(currentLevel);
         }
 
@@ -143,5 +141,14 @@ public class ScoreManager : MonoBehaviourPunCallbacks
 
         score = (int)props[SCORE_KEY];
         return true;
+    }
+
+    public int GetLevelByActorNumber(int actorNumber)
+    {
+        return GetScoreByActorNumber(actorNumber) / LEVEL_THRESHOLD;
+    }
+    private int GetScoreByActorNumber(int actorNumber)
+    {
+        return Scores[actorNumber].Score;
     }
 }

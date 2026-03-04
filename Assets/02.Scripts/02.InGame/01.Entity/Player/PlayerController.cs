@@ -50,10 +50,16 @@ public class PlayerController : MonoBehaviour, IDamageable
         CharacterController = GetComponent<CharacterController>();
     }
 
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    private void Start()
     {
-        GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
+        if (!PhotonView.IsMine)
+        {
+            //isMine이 아니라면 (난입했을때 이전의 플레이어의 무기 크기 조절)
+            int actorNumber = PhotonView.OwnerActorNr;
+            int weaponLevel = ScoreManager.Instance.GetLevelByActorNumber(actorNumber);
+            SetWeaponScale(weaponLevel);
+        }
+        
     }
 
     public T GetAbility<T>() where T : PlayerAbility
@@ -132,8 +138,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         transform.SetPositionAndRotation(spawnPosition, spawnRotation);
 
-        Animator?.Rebind();
-        Animator?.Update(0f);
+        Animator.SetTrigger("OnRespawn");
 
         _healthAbility?.ResetStat();
         _staminaAbility?.ResetStat();
@@ -172,6 +177,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void TrySetWeaponScale(int level)
     {
+        //내 플레이어에게만 적용하는 메서드
         if (!PhotonView.IsMine)
         {
             return;
