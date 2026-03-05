@@ -10,12 +10,16 @@ public class UI_RoomInfo : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _playerNumberText;
     [SerializeField] private Button _exitButton;
 
+    private RoomInfo _roomInfo;
+    
     private void Start()
     {
         _exitButton.onClick.AddListener(ExitRoom);
         PhotonRoomManager.Instance.OnDataChanged += Refresh;
         Refresh();
     }
+
+    
 
     private void Refresh()
     {

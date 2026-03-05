@@ -6,10 +6,25 @@ using UnityEngine;
 
 public class PhotonServerManager : MonoBehaviourPunCallbacks
 {
+    private PhotonServerManager Instance { get; set; }
     private string _version = "0.0.1";
     private string _nickname = "Player";
     [SerializeField] private PhotonPrefabPool _prefabPool;
 
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    
     private void Start()
     {
         if (_prefabPool == null)
@@ -60,27 +75,12 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
     public override void OnJoinedLobby()
     {
         Debug.Log("로비 접속 완료!");
-        Debug.Log(PhotonNetwork.InLobby);
-
-        // 랜덤 방 입장 시도
-        PhotonNetwork.JoinRandomRoom();
     }
     
     // 랜덤방 입장에 실패하면 자동으로 호출되는 콜백 함수
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         Debug.Log($"랜덤 방 입장에 실패했습니다: {returnCode} - {message}");
-
-        // 랜덤 룸 입장에 실패 => 룸없음 => 룸 생성
-        
-        // 룸 옵션
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 20;  // 룸 최대 접속자 수
-        roomOptions.IsVisible = true; // 로비에서 룸을 보여줄 것인지
-        roomOptions.IsOpen = true;    // 룸의 오픈 여부
-        
-        // 룸 만들기 
-        PhotonNetwork.CreateRoom("test", roomOptions);
     }
     
     // 방 입장에 실패하면 자동으로 호출되는 콜백 함수
