@@ -2083,14 +2083,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bdbd33e670c79c40981cc8b17067c74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
+  _weaponGameObject: {fileID: 6906443755591628132}
   Stat:
     MaxHealth: 5
     RegenerateHealth: 0
     MaxStamina: 10
     RegenerateStamina: 1
-    ExhaustRecoveryRatio: 0.33333334
     MoveSpeed: 5
-    ExhaustSpeed: 2
     DashSpeed: 15
     DashCost: 2
     JumpPower: 2.5
@@ -2099,7 +2098,6 @@ MonoBehaviour:
     AttackCost: 2.5
     AttackDamage: 2
     RotationSpeed: 100
-  Score: 0
 --- !u!114 &5272376755440506502
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2233,6 +2231,7 @@ MonoBehaviour:
   - {fileID: 3263876747762608689}
   - {fileID: 1871565052957952667}
   - {fileID: 995827243595035047}
+  - {fileID: 0}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0

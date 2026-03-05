@@ -15,28 +15,31 @@ public class PlayerController : MonoBehaviour, IDamageable
     public Animator Animator { get; private set; }
     public Collider Collision { get; private set; }
     public CharacterController CharacterController { get; private set; }
-    
+    [SerializeField] private GameObject _weaponGameObject;
+
     [Header("memeber")]
     public EntityStat Stat;
-    public int Score = 0;
     private readonly Dictionary<Type, PlayerAbility> _abilitiesCache = new();
     private bool _isRespawning;
-    
+
     [Header("Property")]
     public bool IsDead => _healthAbility.Health.IsEmpty;
-    
+
     public PlayerInputs Inputs => GetAbility<PlayerInputAbility>()?.Inputs;
     private PlayerHealthAbility _healthAbility => GetAbility<PlayerHealthAbility>();
     private PlayerStaminaAbility _staminaAbility => GetAbility<PlayerStaminaAbility>();
 
+
     private void OnEnable()
     {
         PlayerRegistryManager.Instance.RegisterPlayer(this);
+        ScoreManager.OnMyScoreChanged += TrySetWeaponScale;
     }
 
     private void OnDisable()
     {
         PlayerRegistryManager.Instance.UnregisterPlayer(this);
+        ScoreManager.OnMyScoreChanged -= TrySetWeaponScale;
     }
 
     private void Awake()
@@ -46,12 +49,19 @@ public class PlayerController : MonoBehaviour, IDamageable
         Collision = GetComponent<Collider>();
         CharacterController = GetComponent<CharacterController>();
     }
-    
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+
+    private void Start()
     {
-        GetAbility<PlayerNetworkSyncAbility>()?.OnPhotonSerializeView(stream, info);
+        if (!PhotonView.IsMine)
+        {
+            //isMine이 아니라면 (난입했을때 이전의 플레이어의 무기 크기 조절)
+            int actorNumber = PhotonView.OwnerActorNr;
+            int weaponLevel = ScoreManager.Instance.GetLevelByActorNumber(actorNumber);
+            SetWeaponScale(weaponLevel);
+        }
+        
     }
-    
+
     public T GetAbility<T>() where T : PlayerAbility
     {
         var type = typeof(T);
@@ -86,8 +96,8 @@ public class PlayerController : MonoBehaviour, IDamageable
             {
                 int counts = Random.Range(1, 10);
 
-                ItemObjectFactory.Instance.RequestSpawnCoins(transform.position + new Vector3(0,1,0),counts);
-                
+                ItemObjectFactory.Instance.RequestSpawnCoins(transform.position + new Vector3(0, 1, 0), counts);
+                ScoreManager.Instance.SubtractScore((int)(ScoreManager.Instance.MyScore * 0.5f));
                 StartCoroutine(RespawnAfterDelay());
             }
         }
@@ -114,26 +124,27 @@ public class PlayerController : MonoBehaviour, IDamageable
             spawnRotation = rotation;
         }
 
-        PhotonView.RPC(nameof(RpcRespawn), RpcTarget.All, spawnPosition, spawnRotation);
+        Respawn(spawnPosition, spawnRotation);
+        PhotonView.RPC(nameof(RpcRespawn), RpcTarget.Others, spawnPosition, spawnRotation);
     }
 
     [PunRPC]
     private void RpcRespawn(Vector3 spawnPosition, Quaternion spawnRotation)
     {
-        //랜덤위치로 이동
+        Respawn(spawnPosition, spawnRotation);
+    }
+
+    private void Respawn(Vector3 spawnPosition, Quaternion spawnRotation)
+    {
         transform.SetPositionAndRotation(spawnPosition, spawnRotation);
-        
-        //애니메이션 초기화
-        Animator?.Rebind();
-        Animator?.Update(0f);
-        
-        //체력,스태미너 초기화
+
+        Animator.SetTrigger("OnRespawn");
+
         _healthAbility?.ResetStat();
         _staminaAbility?.ResetStat();
-        
-        //충돌활성화
+
         SetCollisionEnabled(true);
-        
+
         _isRespawning = false;
     }
 
@@ -143,8 +154,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             return;
         }
-        
-        //내 상태를 바꾸고 모든 사람에게 전달함
+
         SetCollisionEnabled(enabled);
         PhotonView.RPC(nameof(RpcSetCollisionEnabled), RpcTarget.Others, enabled);
     }
@@ -155,14 +165,43 @@ public class PlayerController : MonoBehaviour, IDamageable
         SetCollisionEnabled(enabled);
     }
 
-
     private void SetCollisionEnabled(bool enabled)
     {
         if (Collision == null)
         {
             return;
         }
-        
+
         Collision.enabled = enabled;
+    }
+
+    public void TrySetWeaponScale(int level)
+    {
+        //내 플레이어에게만 적용하는 메서드
+        if (!PhotonView.IsMine)
+        {
+            return;
+        }
+    
+        SetWeaponScale(level);
+        PhotonView.RPC(nameof(RpcSetWeaponScale), RpcTarget.Others, level);
+    }
+    
+    [PunRPC]
+    private void RpcSetWeaponScale(int level)
+    {
+        SetWeaponScale(level);
+    }
+    
+    private void SetWeaponScale(int level)
+    {
+        if (_weaponGameObject == null)
+        {
+            return;
+        }
+    
+        float scale = 1 + level * 1f; //임시로 1, 원래는 0.1
+        Debug.Log($"무기의 크기 변경 : {scale}");
+        _weaponGameObject.transform.localScale = new Vector3(scale, scale, scale);
     }
 }

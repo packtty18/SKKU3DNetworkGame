@@ -60,32 +60,20 @@ public class PlayerHealthAbility : PlayerAbility
         return true;
     }
 
-    private void TryPlayerDead()
+    public void TryPlayerDead()
     {
-        _owner?.TryCollisionEnabled(false);
-        PlayDead();
-
-        if (_owner == null || _owner.PhotonView == null || !_owner.PhotonView.IsMine)
+        if (!_owner.PhotonView.IsMine)
         {
             return;
         }
-
-        _owner.PhotonView.RPC(nameof(RpcPlayDead), RpcTarget.Others);
+        PlayDead();
+        _owner.PhotonView.RPC(nameof(PlayDead), RpcTarget.Others);
     }
 
     [PunRPC]
-    private void RpcPlayDead()
-    {
-        PlayDead();
-    }
-
     private void PlayDead()
     {
-        if (_owner.Animator == null)
-        {
-            return;
-        }
-
+        _owner?.TryCollisionEnabled(false);
         _owner.Animator.SetTrigger(OnDeadHash);
     }
 

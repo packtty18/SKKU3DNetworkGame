@@ -1,17 +1,35 @@
 using System;
 using Photon.Pun;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ScoreItem : MonoBehaviourPun
 {
+    private bool _isCollected;
+
+    private void OnEnable()
+    {
+        _isCollected = false;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent( out PlayerController player) && !player.IsDead)
+        if (_isCollected)
         {
-            Debug.Log("아이템 획득");
-            player.Score += 100;
-            ItemObjectFactory.Instance.RequestDelete(photonView.ViewID);
+            return;
         }
+
+        if (!other.TryGetComponent(out PlayerController player) || player.IsDead)
+        {
+            return;
+        }
+
+        if (!player.PhotonView.IsMine || ScoreManager.Instance == null)
+        {
+            return;
+        }
+
+        _isCollected = true;
+        ScoreManager.Instance.AddScore(100);
+        ItemObjectFactory.Instance.RequestDelete(photonView.ViewID);
     }
 }
