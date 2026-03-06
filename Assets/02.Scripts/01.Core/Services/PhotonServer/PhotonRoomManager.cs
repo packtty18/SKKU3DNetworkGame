@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PhotonRoomManager : MonoBehaviourPunCallbacks
 {
@@ -18,29 +19,40 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
     
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     // 방 입장에 성공하면 자동으로 호출되는 콜백 함수
     public override void OnJoinedRoom()
     {
         _room = PhotonNetwork.CurrentRoom;
+        PhotonNetwork.LoadLevel("Game");
         OnDataChanged?.Invoke();
-
-        if (PlayerSpawnManager.Instance != null)
-        {
-            PlayerSpawnManager.Instance.PlayerRandomPointSpawn();
-        }
-        else
-        {
-            Debug.Log("스폰매니저가 존재하지 않음");
-        }
+        
+        // if (PlayerSpawnManager.Instance != null)
+        // {
+        //     PlayerSpawnManager.Instance.PlayerRandomPointSpawn();
+        // }
+        // else
+        // {
+        //     Debug.Log("스폰매니저가 존재하지 않음");
+        // }
     }
     
     
     //이건 오버라이드라 다른 처리를 하지 않아도 알아서 서버에 반영됨
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        
+        
         OnDataChanged?.Invoke();
         OnPlayerEnter?.Invoke(newPlayer);
     }
