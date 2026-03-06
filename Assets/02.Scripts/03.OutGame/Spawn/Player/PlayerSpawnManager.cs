@@ -4,23 +4,20 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 
-public class PlayerSpawnManager : MonoBehaviour
+public class PlayerSpawnManager : MonoSingleton<PlayerSpawnManager>
 {
-    public static PlayerSpawnManager Instance { get; private set; }
-
-    [SerializeField] private List<Transform> _spawnPoints = new List<Transform>();
+    [SerializeField] private List<Transform> _spawnPoints = new();
     
-    private void Awake()
+    protected override void OnInitialize()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        
     }
-    
+
+    protected override void OnShutdown()
+    {
+        
+    }
+
     public void PlayerRandomPointSpawn()
     {
         int spawnId = Random.Range(0, _spawnPoints.Count);

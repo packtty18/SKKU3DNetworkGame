@@ -3,20 +3,14 @@ using Photon.Pun;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class ItemObjectFactory : MonoBehaviourPun
+public class ItemSpawnManager : PunSingleton<ItemSpawnManager>
 {
-    public static ItemObjectFactory Instance;
-    
-    private void Awake()
+    protected override void OnInitialize()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+    }
+
+    protected override void OnShutdown()
+    {
     }
     
     public void RequestSpawnCoins(Vector3 position, int count = 1)

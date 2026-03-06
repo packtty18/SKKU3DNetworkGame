@@ -2,21 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemySpawnManager : MonoBehaviour
+public class EnemySpawnManager : MonoSingleton<EnemySpawnManager>
 {
-    public static EnemySpawnManager Instance { get; private set; }
 
     [SerializeField] private List<Transform> _spawnPoints = new();
-
-    private void Awake()
+    
+    protected override void OnInitialize()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+    }
 
-        Instance = this;
+    protected override void OnShutdown()
+    {
     }
 
     public void RequestRespawn(EnemyController enemy, float delay)

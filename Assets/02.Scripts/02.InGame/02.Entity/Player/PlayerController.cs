@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             {
                 int counts = Random.Range(1, 10);
 
-                ItemObjectFactory.Instance.RequestSpawnCoins(transform.position + new Vector3(0, 1, 0), counts);
+                ItemSpawnManager.Instance.RequestSpawnCoins(transform.position + new Vector3(0, 1, 0), counts);
                 ScoreManager.Instance.SubtractScore((int)(ScoreManager.Instance.MyScore * 0.5f));
                 StartCoroutine(RespawnAfterDelay());
             }

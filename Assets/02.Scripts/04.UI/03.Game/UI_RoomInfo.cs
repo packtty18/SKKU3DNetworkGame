@@ -35,5 +35,6 @@ public class UI_RoomInfo : MonoBehaviour
     private void ExitRoom()
     {
         //todo
+        GameFlowManager.Instance.LeaveRoom();
     }
 }

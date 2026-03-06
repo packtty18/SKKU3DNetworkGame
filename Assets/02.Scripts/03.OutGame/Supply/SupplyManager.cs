@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
-public class SupplyManager : MonoBehaviourPun
+public class SupplyManager : PunSingleton<SupplyManager>
 {
     //이 기능은 마스터만이 사용한다.
     // Nav의 랜덤한 지점 + y+10 랜덤한 위치를 구한다
@@ -15,14 +15,21 @@ public class SupplyManager : MonoBehaviourPun
     [SerializeField] private Vector3 _spawnOffset = new Vector3(0, 10, 0);
     private NavMeshTriangulation _navData;
     
-    private void Awake()
+
+    protected override void OnInitialize()
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            Destroy(gameObject);
+        }
+        
         GetTriangulation();
+        _supplyTimer = 0;
     }
 
-    private void Start()
+    protected override void OnShutdown()
     {
-        _supplyTimer = 0;
+        
     }
 
 
@@ -86,6 +93,6 @@ public class SupplyManager : MonoBehaviourPun
     private void TrySupplySpawn()
     {
         Vector3 targetPosition = GetRandomPoint() + _spawnOffset;
-        ItemObjectFactory.Instance.RequestSpawnCoins(targetPosition);
+        ItemSpawnManager.Instance.RequestSpawnCoins(targetPosition);
     }
 }

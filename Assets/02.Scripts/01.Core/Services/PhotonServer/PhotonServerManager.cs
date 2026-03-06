@@ -4,48 +4,19 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 
-public class PhotonServerManager : MonoBehaviourPunCallbacks
+public class PhotonServerManager : PunCallbackSingleton<PhotonServerManager>
 {
-    private PhotonServerManager Instance { get; set; }
     private string _version = "0.0.1";
-    private string _nickname = "Player";
-    [SerializeField] private PhotonPrefabPool _prefabPool;
+    private string _defaultNickname = "Player";
 
-    private void Awake()
+    protected override void OnInitialize()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(this);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    
-    private void Start()
-    {
-        if (_prefabPool == null)
-        {
-            _prefabPool = GetComponent<PhotonPrefabPool>();
-        }
-
-        if (_prefabPool != null)
-        {
-            PhotonNetwork.PrefabPool = _prefabPool;
-        }
-        else
-        {
-            Debug.LogWarning("PhotonPrefabPool is not assigned. Falling back to default Resources-based pool.");
-        }
-
-        _nickname += $"_{UnityEngine.Random.Range(100, 999)}";
+        //서버접속
+        _defaultNickname += $"_{UnityEngine.Random.Range(100, 999)}";
         
         //설정 파트
         PhotonNetwork.GameVersion = _version;
-        PhotonNetwork.NickName = _nickname;
+        PhotonNetwork.NickName = _defaultNickname;
         // TCP/UDP : 빈신뢰성
         PhotonNetwork.SendRate          = 30; // 얼마나 자주 데이터를 송수신할 것인가..  (실제 송수신)
         PhotonNetwork.SerializationRate = 30; // 얼마나 자주 데이터를 직렬화 할 것인지.  (송수신 준비)
@@ -67,7 +38,6 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         //TypedLobby lobby = new TypedLobby("3channel", LobbyType.Default);
-        
         PhotonNetwork.JoinLobby(); // Default 로비 입장 시도
     }
 
@@ -87,5 +57,10 @@ public class PhotonServerManager : MonoBehaviourPunCallbacks
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         Debug.Log($"방 입장에 실패했습니다: {returnCode} - {message}");
+    }
+
+    protected override void OnShutdown()
+    {
+        PhotonNetwork.Disconnect();
     }
 }
