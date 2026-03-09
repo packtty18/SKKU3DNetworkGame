@@ -25,7 +25,6 @@ public class ScoreManager : PunCallbackSingleton<ScoreManager>
     protected override void OnInitialize()
     {
         _myScore = 0;
-        currentLevel = 0;
     }
 
     protected override void OnShutdown()
@@ -37,7 +36,7 @@ public class ScoreManager : PunCallbackSingleton<ScoreManager>
         OnDataChanged = null;
     }
 
-    public override void OnJoinedRoom()
+    public void InitScore()
     {
         _scores.Clear();
         currentLevel = 0;

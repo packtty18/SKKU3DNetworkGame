@@ -13,7 +13,10 @@ public class PlayerRegistryManager : MonoSingleton<PlayerRegistryManager>
 
     protected override void OnShutdown()
     {
-        
+        foreach (PlayerController player in _players)
+        {
+            Destroy(player.gameObject);
+        }
     }
 
     public void RegisterPlayer(PlayerController player)

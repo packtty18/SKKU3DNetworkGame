@@ -62,7 +62,7 @@ public abstract class MonoSingleton<T> :MonoBehaviour, ISingleton where T : Mono
         {
             OnShutdown();
             _isInitialized = false;
-            Debug.Log($"{typeof(T)} is Initialized");
+            Debug.Log($"{typeof(T)} is shutdowned");
         }
 
         if (destroyObject)

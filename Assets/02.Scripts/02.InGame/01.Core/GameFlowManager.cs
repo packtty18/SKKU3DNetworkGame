@@ -1,5 +1,6 @@
 using System;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,48 +10,33 @@ public class GameFlowManager : PunCallbackSingleton<GameFlowManager>
 
     protected override void OnInitialize()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        
     }
 
     protected override void OnShutdown()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        
+    }
+
+    private void Start()
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            return;
+        }
+        PlayerSpawnManager.Instance.PlayerRandomPointSpawn();
+        ScoreManager.Instance.InitScore();
+        
     }
 
     public override void OnJoinedRoom()
     {
-        _spawned = false;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.name != "Game")
+        if (PhotonNetwork.IsMasterClient)
         {
             return;
         }
-
-        if (!PhotonNetwork.InRoom)
-        {
-            return;
-        }
-
-        if (_spawned)
-        {
-            return;
-        }
-
-        _spawned = true;
-
-        PlayerSpawnManager spawnManager = PlayerSpawnManager.Instance;
-        if (spawnManager != null)
-        {
-            spawnManager.PlayerRandomPointSpawn();
-        }
-
-        if (ScoreManager.Instance != null)
-        {
-            ScoreManager.Instance.Refresh();
-        }
+        PlayerSpawnManager.Instance.PlayerRandomPointSpawn();
+        ScoreManager.Instance.InitScore();
     }
 
     public void LeaveRoom()

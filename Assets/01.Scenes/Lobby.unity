@@ -9674,17 +9674,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 108225653778528902, guid: 3e2accafa3a5f1b40ba86cf39bcb49a7, type: 3}
   m_PrefabInstance: {fileID: 995039611}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1005376341 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
-  m_PrefabInstance: {fileID: 1684702016}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6cd6ab0944234040bf5c2be4d27e433, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PhotonPrefabPool
 --- !u!1001 &1022605382
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12822,14 +12811,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3214946593587704043, guid: 22f2b29d5c340f449afdf8be698b95b4, type: 3}
-      propertyPath: sceneViewId
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5541420836102769505, guid: 22f2b29d5c340f449afdf8be698b95b4, type: 3}
-      propertyPath: _initOrder
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7818010024814063976, guid: 22f2b29d5c340f449afdf8be698b95b4, type: 3}
       propertyPath: m_Name
       value: PhotonRoomManager
@@ -12887,14 +12868,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1442307007798662753, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1442307007798662753, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
-      propertyPath: sceneViewId
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5920453251962510756, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1500
@@ -12939,10 +12912,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PhotonServerManager
       objectReference: {fileID: 0}
-    - target: {fileID: 7436923907890747035, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
-      propertyPath: _prefabPool
-      value: 
-      objectReference: {fileID: 1005376341}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -64,7 +64,7 @@ public abstract class PunCallbackSingleton<T> : MonoBehaviourPunCallbacks, ISing
         {
             OnShutdown();
             _isInitialized = false;
-            Debug.Log($"{typeof(T)} is Initialized");
+            Debug.Log($"{typeof(T)} is shutdowned");
         }
 
         if (destroyObject)

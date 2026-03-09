@@ -63,7 +63,7 @@ public abstract class PunSingleton<T> :  MonoBehaviourPun, ISingleton where T : 
         {
             OnShutdown();
             _isInitialized = false;
-            Debug.Log($"{typeof(T)} is Initialized");
+            Debug.Log($"{typeof(T)} is shutdowned");
         }
 
         if (destroyObject)
