@@ -6,53 +6,54 @@ using Photon.Realtime;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class ScoreManager : MonoBehaviourPunCallbacks
+public class ScoreManager : PunCallbackSingleton<ScoreManager>
 {
     private const string SCORE_KEY = "score";
     private const int LEVEL_THRESHOLD = 1000;
-
-    public static ScoreManager Instance;
-
+    
     [ShowInInspector, ReadOnly] private int _myScore;
-    public int MyScore => _myScore;
-    [ShowInInspector, ReadOnly]private int currentLevel;
-    [ShowInInspector, ReadOnly]public int  MyScoreLevel => _myScore / LEVEL_THRESHOLD;
-
+    [ShowInInspector, ReadOnly] private int currentLevel;
     [ShowInInspector, ReadOnly] private Dictionary<int, ScoreData> _scores = new();
+    
     public IReadOnlyDictionary<int, ScoreData> Scores => _scores;
-
+    [ShowInInspector, ReadOnly]public int  MyScoreLevel => _myScore / LEVEL_THRESHOLD;
+    public int MyScore => _myScore;
+    
     public static event Action<int> OnMyScoreChanged;
     public static event Action OnDataChanged;
-
-    private void Awake()
+    
+    protected override void OnInitialize()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        _myScore = 0;
     }
 
-    public override void OnJoinedRoom()
+    protected override void OnShutdown()
+    {
+        _myScore = 0;
+        currentLevel = 0;
+        _scores = null;
+        OnMyScoreChanged = null;
+        OnDataChanged = null;
+    }
+
+    public void InitScore()
     {
         _scores.Clear();
         currentLevel = 0;
+
         Player[] players = PhotonNetwork.PlayerList;
         for (int i = 0; i < players.Length; i++)
         {
             Player player = players[i];
-            if (TryGetScore(player.CustomProperties, out int score))
+
+            int score = 0;
+            TryGetScore(player.CustomProperties, out score);
+
+            _scores[player.ActorNumber] = new ScoreData
             {
-                _scores[player.ActorNumber] = new ScoreData
-                {
-                    Nickname = player.NickName,
-                    Score = score
-                };
-            }
+                Nickname = player.NickName,
+                Score = score
+            };
         }
 
         OnDataChanged?.Invoke();
@@ -86,18 +87,24 @@ public class ScoreManager : MonoBehaviourPunCallbacks
         Refresh();
     }
 
-    private void Refresh()
+    public void Refresh()
     {
         if (!PhotonNetwork.InRoom || PhotonNetwork.LocalPlayer == null)
         {
             return;
         }
 
+        _scores[PhotonNetwork.LocalPlayer.ActorNumber] = new ScoreData
+        {
+            Nickname = PhotonNetwork.LocalPlayer.NickName,
+            Score = _myScore
+        };
+
         Hashtable hash = new Hashtable
         {
             [SCORE_KEY] = _myScore
         };
-        
+
         if (MyScoreLevel != currentLevel)
         {
             currentLevel = MyScoreLevel;
@@ -105,8 +112,9 @@ public class ScoreManager : MonoBehaviourPunCallbacks
         }
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+        OnDataChanged?.Invoke();
     }
-
+    
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
         if (Instance == null)
@@ -149,6 +157,11 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     }
     private int GetScoreByActorNumber(int actorNumber)
     {
-        return Scores[actorNumber].Score;
+        if (_scores != null && _scores.TryGetValue(actorNumber, out ScoreData scoreData))
+        {
+            return scoreData.Score;
+        }
+
+        return 0;
     }
 }

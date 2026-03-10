@@ -1,24 +1,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerRegistryManager : MonoBehaviour
+public class PlayerRegistryManager : MonoSingleton<PlayerRegistryManager>
 {
-    private static PlayerRegistryManager _instance;
-    public static PlayerRegistryManager Instance => _instance;
-    
     private readonly List<PlayerController> _players = new();
     public IReadOnlyList<PlayerController> Players => _players;
-
-    private void Awake()
+    
+    protected override void OnInitialize()
     {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        
+    }
 
-        _instance = this;
-        DontDestroyOnLoad(gameObject);
+    protected override void OnShutdown()
+    {
+        foreach (PlayerController player in _players)
+        {
+            Destroy(player.gameObject);
+        }
     }
 
     public void RegisterPlayer(PlayerController player)
@@ -39,13 +37,5 @@ public class PlayerRegistryManager : MonoBehaviour
         }
 
         _players.Remove(player);
-    }
-
-    private void OnDestroy()
-    {
-        if (_instance == this)
-        {
-            _instance = null;
-        }
     }
 }

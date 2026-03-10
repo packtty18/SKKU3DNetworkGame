@@ -30,6 +30,6 @@ public class ScoreItem : MonoBehaviourPun
 
         _isCollected = true;
         ScoreManager.Instance.AddScore(100);
-        ItemObjectFactory.Instance.RequestDelete(photonView.ViewID);
+        ItemSpawnManager.Instance.RequestDelete(photonView.ViewID);
     }
 }

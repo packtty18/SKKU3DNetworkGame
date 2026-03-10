@@ -1,34 +1,40 @@
 using System;
 using System.Collections.Generic;
 using Photon.Pun;
+using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-[DisallowMultipleComponent]
-public class PhotonPrefabPool : MonoBehaviour, IPunPrefabPool
+[Serializable]
+public class PrefabEntry
 {
-    [Serializable]
-    private class PrefabEntry
+    public string prefabId;
+    public GameObject prefab;
+}
+
+public class PhotonPrefabPool : MonoSingleton<PhotonPrefabPool>, IPunPrefabPool
+{
+    [SerializeField, RequiredIn(PrefabKind.PrefabAsset)] private List<PrefabEntry> _initEntry = new();
+
+    private readonly Dictionary<string, GameObject> _prefabById = new ();
+    private readonly Dictionary<string, Queue<GameObject>> _poolById = new ();
+    private readonly Dictionary<GameObject, string> _instanceToId = new ();
+    
+
+    protected override void OnInitialize()
     {
-        public string prefabId;
-        public GameObject prefab;
+        BuildPrefabLookup(_initEntry);
+        PhotonNetwork.PrefabPool = this;
     }
 
-    [SerializeField] private List<PrefabEntry> prefabs = new List<PrefabEntry>();
-
-    private readonly Dictionary<string, GameObject> _prefabById = new Dictionary<string, GameObject>();
-    private readonly Dictionary<string, Queue<GameObject>> _poolById = new Dictionary<string, Queue<GameObject>>();
-    private readonly Dictionary<GameObject, string> _instanceToId = new Dictionary<GameObject, string>();
-
-    private void Awake()
+    private void BuildPrefabLookup(List<PrefabEntry> entries)
     {
-        BuildPrefabLookup();
-    }
-
-    private void BuildPrefabLookup()
-    {
+        DestroyAllInstance();
         _prefabById.Clear();
+        _poolById.Clear();
+        _instanceToId.Clear();
 
-        foreach (PrefabEntry entry in prefabs)
+        foreach (PrefabEntry entry in entries)
         {
             if (entry == null || string.IsNullOrWhiteSpace(entry.prefabId) || entry.prefab == null)
             {
@@ -48,7 +54,8 @@ public class PhotonPrefabPool : MonoBehaviour, IPunPrefabPool
     {
         if (_prefabById.Count == 0)
         {
-            BuildPrefabLookup();
+            Debug.LogError("PhotonPrefabPool : prefab pool is EMPTY");
+            return null;
         }
 
         if (!_prefabById.TryGetValue(prefabId, out GameObject sourcePrefab) || sourcePrefab == null)
@@ -102,4 +109,46 @@ public class PhotonPrefabPool : MonoBehaviour, IPunPrefabPool
         gameObject.SetActive(false);
         queue.Enqueue(gameObject);
     }
+    
+    private void DestroyAllInstance()
+    {
+        foreach (KeyValuePair<string, Queue<GameObject>> pair in _poolById)
+        {
+            Queue<GameObject> queue = pair.Value;
+
+            while (queue.Count > 0)
+            {
+                GameObject instance = queue.Dequeue();
+
+                if (instance != null)
+                {
+                    UnityEngine.Object.Destroy(instance);
+                }
+            }
+        }
+
+        foreach (GameObject instance in new List<GameObject>(_instanceToId.Keys))
+        {
+            if (instance != null)
+            {
+                UnityEngine.Object.Destroy(instance);
+            }
+        }
+    }
+    
+    protected override void OnShutdown()
+    {
+        if (ReferenceEquals(PhotonNetwork.PrefabPool, this))
+        {
+            PhotonNetwork.PrefabPool = new DefaultPool();
+        }
+
+        DestroyAllInstance();
+
+        _prefabById.Clear();
+        _poolById.Clear();
+        _instanceToId.Clear();
+    }
+
+    
 }

@@ -9674,34 +9674,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 108225653778528902, guid: 3e2accafa3a5f1b40ba86cf39bcb49a7, type: 3}
   m_PrefabInstance: {fileID: 995039611}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1005376340 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6258588184178272275, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
-  m_PrefabInstance: {fileID: 1684702016}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1005376341 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
-  m_PrefabInstance: {fileID: 1684702016}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1005376340}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6cd6ab0944234040bf5c2be4d27e433, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PhotonPrefabPool
---- !u!114 &1005376343
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1005376340}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8677187645fdc154ab61289507873ffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DontDestroy
 --- !u!1001 &1022605382
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9994,6 +9966,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5023827496289240853, guid: a79279818571b6848a9ccb8dcb36dd2c, type: 3}
   m_PrefabInstance: {fileID: 1047835676}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1052447040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1052447042}
+  - component: {fileID: 1052447041}
+  m_Layer: 0
+  m_Name: Bootloader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1052447041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1052447040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb8c1d00258168147882b4b13b8b7a90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AppSingletonBoot
+  target: 0
+--- !u!4 &1052447042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1052447040}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.29073, y: 2.83771, z: 11.12932}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1052509764
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12794,10 +12811,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3214946593587704043, guid: 22f2b29d5c340f449afdf8be698b95b4, type: 3}
-      propertyPath: sceneViewId
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 7818010024814063976, guid: 22f2b29d5c340f449afdf8be698b95b4, type: 3}
       propertyPath: m_Name
       value: PhotonRoomManager
@@ -12855,14 +12868,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1442307007798662753, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1442307007798662753, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
-      propertyPath: sceneViewId
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5920453251962510756, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1500
@@ -12907,10 +12912,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PhotonServerManager
       objectReference: {fileID: 0}
-    - target: {fileID: 7436923907890747035, guid: b2126c065a0cfad4aafa7e652d7493e0, type: 3}
-      propertyPath: _prefabPool
-      value: 
-      objectReference: {fileID: 1005376341}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16775,6 +16776,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
+      propertyPath: _initOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
+      propertyPath: _initEntry.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
+      propertyPath: _initEntry.Array.data[0].prefab
+      value: 
+      objectReference: {fileID: 4897730005635360349, guid: 3e4b1736365a25c4ea85fe43a160fdfe, type: 3}
+    - target: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
+      propertyPath: _initEntry.Array.data[1].prefab
+      value: 
+      objectReference: {fileID: 2110226083984741658, guid: 219d52226b26e7b459df05646c81e44f, type: 3}
+    - target: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
+      propertyPath: _initEntry.Array.data[0].prefabId
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 158335440165081819, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
+      propertyPath: _initEntry.Array.data[1].prefabId
+      value: Coin
+      objectReference: {fileID: 0}
     - target: {fileID: 6258588184178272275, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
       propertyPath: m_Name
       value: PhotonPool
@@ -16782,10 +16807,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6258588184178272275, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1005376343}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 05a24714f2a113e46a909aea36c10023, type: 3}
 --- !u!1001 &1685535725
 PrefabInstance:
@@ -20446,6 +20468,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1052447042}
   - {fileID: 1296255615}
   - {fileID: 1295789864}
   - {fileID: 1684702016}
