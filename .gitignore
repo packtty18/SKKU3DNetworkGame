@@ -100,3 +100,4 @@ InitTestScene*.unity*
 Packages/com.kybernetik.inspector-gadgets
 Assets/Plugins/Sirenix
 Assets/Plugins/Sirenix.meta
+Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset
